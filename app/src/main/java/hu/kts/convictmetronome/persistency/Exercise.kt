@@ -10,8 +10,8 @@ data class Exercise(
     val id: Int = 0,
     @ColumnInfo(name = "name")
     val name: String,
-    @ColumnInfo(name = "countdown_from")
-    val countdownFrom: Int,
+    @ColumnInfo(name = "countdown_from_millis")
+    val countdownFromMillis: Int,
     @ColumnInfo(name = "start_with_up")
     val startWithUp: Boolean,
     @ColumnInfo(name = "up_millis")
@@ -22,4 +22,17 @@ data class Exercise(
     val downMillis: Int,
     @ColumnInfo(name = "lower_hold_millis")
     val lowerHoldMillis: Int,
-)
+) {
+    companion object {
+        val default = Exercise(
+            id = 0,
+            name = "default",
+            countdownFromMillis = 300,
+            startWithUp = false,
+            upMillis = 2000,
+            upperHoldMillis = 1000,
+            downMillis = 2000,
+            lowerHoldMillis = 100
+        )
+    }
+}
