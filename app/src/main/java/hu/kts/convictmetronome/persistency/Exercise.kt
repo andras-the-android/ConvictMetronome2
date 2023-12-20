@@ -27,7 +27,7 @@ data class Exercise(
         val default = Exercise(
             id = 0,
             name = "default",
-            countdownFromMillis = 300,
+            countdownFromMillis = 3000,
             startWithUp = false,
             upMillis = 2000,
             upperHoldMillis = 1000,
