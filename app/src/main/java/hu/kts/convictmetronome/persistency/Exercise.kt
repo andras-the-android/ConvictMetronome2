@@ -32,7 +32,7 @@ data class Exercise(
             upMillis = 2000,
             upperHoldMillis = 1000,
             downMillis = 2000,
-            lowerHoldMillis = 100
+            lowerHoldMillis = 1000
         )
     }
 }

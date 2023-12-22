@@ -28,7 +28,7 @@ class Timer @Inject constructor(
                 }
             }
         }
-        timer.schedule(task, 0, tickPeriod)
+        timer.schedule(task, 0, tickPeriod.toLong())
     }
 
     fun stop() {
@@ -37,6 +37,6 @@ class Timer @Inject constructor(
 
 }
 
-const val tickPeriod = 500L
+const val tickPeriod = 500
 
 fun Int.ticksToMs() = this * tickPeriod
