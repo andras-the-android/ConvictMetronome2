@@ -4,8 +4,9 @@ import android.annotation.SuppressLint
 import hu.kts.convictmetronome.core.ticksToMs
 import java.text.SimpleDateFormat
 import java.util.Date
+import javax.inject.Inject
 
-class BetweenSetsCalculator {
+class BetweenSetsCalculator @Inject constructor() {
 
     fun getClock(tickCount: Int): String {
         val elapsedTime = tickCount.ticksToMs()

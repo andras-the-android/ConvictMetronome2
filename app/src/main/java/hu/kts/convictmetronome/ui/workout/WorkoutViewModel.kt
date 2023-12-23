@@ -47,7 +47,7 @@ class WorkoutViewModel @Inject constructor(
             tickProvider.tickFlow.collect { onTick() }
         }
         viewModelScope.launch {
-            exerciseRepository.selectedExercise.collect {exercise ->
+            exerciseRepository.selectedExercise.collect { exercise ->
                 initWorkout(exercise)
             }
         }
