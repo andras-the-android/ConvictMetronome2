@@ -41,7 +41,7 @@ class WorkoutViewModel @Inject constructor(
 
     private val _sideEffect = MutableSharedFlow<WorkoutSideEffect>()
     val sideEffect = _sideEffect.asSharedFlow()
-    
+
     init {
         viewModelScope.launch {
             tickProvider.tickFlow.collect { onTick() }
@@ -79,7 +79,7 @@ class WorkoutViewModel @Inject constructor(
         return false
     }
 
-    private fun onTick() {
+    private suspend fun onTick() {
         when (val localPhase = ++phase) {
 
             is Initial -> throw IllegalStateException("Tick provider should not run when state is initial")
@@ -94,7 +94,18 @@ class WorkoutViewModel @Inject constructor(
                 }
             }
 
-            is InProgress -> TODO()
+            is InProgress -> {
+                val (repCounter, sideEffect) = workoutInProgressCalculator.getCounterAndSideEffect(exercise, localPhase.ticks)
+                _state.update { (it as WorkoutScreenState.Content).copy(repCounter = repCounter) }
+                sideEffect?.let {
+                    when (it) {
+                        WorkoutSideEffect.animationUp -> sounds.makeUpSound()
+                        WorkoutSideEffect.animationDown -> sounds.makeDownSound()
+                    }
+                    _sideEffect.emit(it)
+                }
+            }
+
             is Paused -> throw IllegalStateException("Tick provider should not run when state is paused")
             is BetweenSets -> TODO()
         }

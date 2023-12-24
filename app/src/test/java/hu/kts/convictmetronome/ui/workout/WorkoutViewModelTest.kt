@@ -1,6 +1,7 @@
 package hu.kts.convictmetronome.ui.workout
 
 import app.cash.turbine.test
+import app.cash.turbine.turbineScope
 import hu.kts.convictmetronome.core.Sounds
 import hu.kts.convictmetronome.core.TickProvider
 import hu.kts.convictmetronome.persistency.Exercise
@@ -12,10 +13,16 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.verify
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -39,6 +46,9 @@ class WorkoutViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
 
     private lateinit var underTest: WorkoutViewModel
+    private lateinit var sideEffectScope: CoroutineScope
+    private lateinit var sideEffectFlow: Flow<WorkoutSideEffect>
+
 
     @BeforeEach
     fun setUp() {
@@ -47,17 +57,28 @@ class WorkoutViewModelTest {
         every { tickProvider.tickFlow } returns tickFlow
         every { tickProvider.start() } just runs
         every { tickProvider.stop() } just runs
+        every { sounds.makeUpSound() } just runs
+        every { sounds.makeDownSound() } just runs
 
         underTest = WorkoutViewModel(tickProvider, sounds, exerciseRepository, countdownCalculator, inProgressCalculator, betweenSetsCalculator)
+        // we need this workaround because turbine unable to test a SharedFlow with 0 replay
+        // TODO find a cleaner solution
+        sideEffectScope = CoroutineScope(Dispatchers.Main)
+        sideEffectFlow = underTest.sideEffect.shareIn(
+            sideEffectScope,
+            SharingStarted.Eagerly,
+            replay = 1
+        )
     }
 
     @AfterEach
     fun tearDown() {
+        sideEffectScope.cancel()
         Dispatchers.resetMain()
     }
 
     @Test
-    fun test() = runTest {
+    fun countdown() = runTest {
         underTest.state.test {
             awaitItem() // consume the initial state
             underTest.onCounterClick()
@@ -69,6 +90,34 @@ class WorkoutViewModelTest {
             tick(3)
             tick(4)
             assertEquals(WorkoutScreenState.Content(1), awaitItem())
+        }
+    }
+
+    @Test
+    fun `workout in progress`() = runTest {
+        underTest.onCounterClick()
+        tickRange(0, 6) // countdown
+        turbineScope {
+            tick(6)
+            val stateReceiver = underTest.state.testIn(backgroundScope)
+            val sideEffectReceiver = sideEffectFlow.testIn(backgroundScope)
+            assertEquals(WorkoutScreenState.Content(), stateReceiver.awaitItem())
+            assertEquals(WorkoutSideEffect.animationDown, sideEffectReceiver.awaitItem())
+            tickRange(7, 6) // half range
+            assertEquals(WorkoutSideEffect.animationUp, sideEffectReceiver.awaitItem())
+            tickRange(13, 6) // half range
+            assertEquals(WorkoutScreenState.Content(repCounter = 1), stateReceiver.awaitItem())
+            assertEquals(WorkoutSideEffect.animationDown, sideEffectReceiver.awaitItem())
+            stateReceiver.expectNoEvents()
+            sideEffectReceiver.expectNoEvents()
+        }
+        verify(exactly = 1) { sounds.makeUpSound() }
+        verify(exactly = 2) { sounds.makeDownSound() }
+    }
+
+    private suspend fun tickRange(start: Int, times: Int) {
+        for (i in 0 ..< times) {
+            tick(start + i)
         }
     }
 
