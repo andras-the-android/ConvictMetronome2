@@ -92,10 +92,17 @@ class WorkoutViewModel @Inject constructor(
 
     fun onCounterLongClick(): Boolean {
         if (!this::exercise.isInitialized) throw IllegalStateException("Click events should not happen before exercise initialization")
-        val localePhase = phase
-        if (localePhase is InProgress) {
-            sounds.stop()
-            phase = BetweenSets()
+        when (phase) {
+            is InProgress, is Paused -> {
+                sounds.stop()
+                phase = BetweenSets()
+            }
+
+            is BetweenSets -> {
+                initWorkout(exercise)
+            }
+
+            is Countdown, Initial -> {}
         }
         return false
     }

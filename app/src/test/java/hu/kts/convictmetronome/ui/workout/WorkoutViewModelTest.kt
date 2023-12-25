@@ -198,6 +198,20 @@ class WorkoutViewModelTest {
         verify(exactly = 1) { sounds.beep() }
     }
 
+    @Test
+    fun `complete a workout and then start a new one`() = runTest {
+        underTest.onCounterClick()
+        tickRange(0, 40) // countdown + 2 rep + 3 tick
+        underTest.state.test {
+            assertEquals(WorkoutScreenState.Content(repCounter = 2), awaitItem())
+            underTest.onCounterLongClick()
+            underTest.onCounterLongClick()
+            assertEquals(WorkoutScreenState.Content(), awaitItem())
+        }
+    }
+
+
+
     private suspend fun tickRange(start: Int, times: Int) {
         for (i in 0 ..< times) {
             tick(start + i)
