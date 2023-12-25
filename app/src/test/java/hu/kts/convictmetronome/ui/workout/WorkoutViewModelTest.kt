@@ -94,6 +94,26 @@ class WorkoutViewModelTest {
     }
 
     @Test
+    fun `countdown interrupted by pause and then restart`() = runTest {
+        underTest.state.test {
+            awaitItem() // consume the initial state
+            underTest.onCounterClick() // start
+            tickRange(0, 4)
+            skipItems(2)
+            underTest.onCounterClick() // pause
+            underTest.onCounterClick() // restart
+            tick(0)
+            assertEquals(WorkoutScreenState.Content(3), awaitItem())
+            tick(1)
+            tick(2)
+            assertEquals(WorkoutScreenState.Content(2), awaitItem())
+            tick(3)
+            tick(4)
+            assertEquals(WorkoutScreenState.Content(1), awaitItem())
+        }
+    }
+
+    @Test
     fun `workout in progress`() = runTest {
         underTest.onCounterClick()
         tickRange(0, 6) // countdown
@@ -113,6 +133,35 @@ class WorkoutViewModelTest {
         }
         verify(exactly = 1) { sounds.makeUpSound() }
         verify(exactly = 2) { sounds.makeDownSound() }
+    }
+
+    @Test
+    fun `workout in progress interrupted by pause and then restart`() = runTest {
+        underTest.onCounterClick()
+        tickRange(0, 40) // countdown + 2 rep + 3 tick
+        underTest.state.test {
+            assertEquals(WorkoutScreenState.Content(repCounter = 2), awaitItem())
+            underTest.onCounterClick()
+            underTest.onCounterClick()
+            // countdown
+            tick(0)
+            assertEquals(WorkoutScreenState.Content(3), awaitItem())
+            tick(1)
+            tick(2)
+            assertEquals(WorkoutScreenState.Content(2), awaitItem())
+            tick(3)
+            tick(4)
+            assertEquals(WorkoutScreenState.Content(1), awaitItem())
+            tick(5)
+            tick(6)
+
+            // set continues from rep 2
+            assertEquals(WorkoutScreenState.Content(repCounter = 2), awaitItem())
+            tickRange(7, 10)
+            expectNoEvents()
+            tick(17)
+            assertEquals(WorkoutScreenState.Content(repCounter = 3), awaitItem())
+        }
     }
 
     private suspend fun tickRange(start: Int, times: Int) {

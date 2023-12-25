@@ -5,15 +5,21 @@ sealed interface WorkoutPhase {
         override fun inc() = this
     }
 
-    data class Countdown(val ticks: Int = initialClick): WorkoutPhase {
+    data class Countdown(
+        val ticksFromPreviousPhase: Int = initialClick,
+        val ticks: Int = initialClick
+    ): WorkoutPhase {
         override fun inc() = copy(ticks = ticks + 1)
     }
+
     data class InProgress(val ticks: Int = initialClick): WorkoutPhase {
         override fun inc() = copy(ticks = ticks + 1)
     }
-    data object Paused: WorkoutPhase {
+
+    data class Paused(val ticksFromPreviousPhase: Int): WorkoutPhase {
         override fun inc() = this
     }
+
     data class BetweenSets(val ticks: Int = initialClick): WorkoutPhase {
         override fun inc() = copy(ticks = ticks + 1)
     }

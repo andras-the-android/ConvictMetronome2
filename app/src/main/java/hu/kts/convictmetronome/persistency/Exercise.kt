@@ -23,6 +23,9 @@ data class Exercise(
     @ColumnInfo(name = "lower_hold_millis")
     val lowerHoldMillis: Int,
 ) {
+
+    fun calcRepDuration() = downMillis + lowerHoldMillis + upMillis + upperHoldMillis
+
     companion object {
         val default = Exercise(
             id = 0,

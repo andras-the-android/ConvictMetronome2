@@ -5,6 +5,7 @@ import hu.kts.convictmetronome.ui.workout.WorkoutSideEffect
 import hu.kts.convictmetronome.ui.workout.WorkoutSideEffect.animationDown
 import hu.kts.convictmetronome.ui.workout.WorkoutSideEffect.animationUp
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -33,6 +34,15 @@ class WorkoutInProgressCalculatorTest {
             underTest.getCounterAndSideEffect(exerciseStartUp, tickCount),
             "tick #$tickCount"
         )
+    }
+
+    @Test
+    fun testRemoveLatestRepFromTicks() {
+        val underTest = WorkoutInProgressCalculator()
+        assertEquals(0, underTest.removeLatestRepFromTicks(exerciseStartDown, 6))
+        assertEquals(0, underTest.removeLatestRepFromTicks(exerciseStartDown, 12))
+        assertEquals(13, underTest.removeLatestRepFromTicks(exerciseStartDown, 13))
+        assertEquals(13, underTest.removeLatestRepFromTicks(exerciseStartDown, 14))
     }
 
     companion object {

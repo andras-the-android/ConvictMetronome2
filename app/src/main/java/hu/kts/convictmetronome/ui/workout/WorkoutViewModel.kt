@@ -62,14 +62,23 @@ class WorkoutViewModel @Inject constructor(
 
     fun onCounterClick() {
         if (!this::exercise.isInitialized) throw IllegalStateException("Click events should not happen before exercise initialization")
-        when (phase) {
+        when (val localPhase = phase) {
             is Initial -> {
                 phase = Countdown()
                 tickProvider.start()
             }
-            is Countdown -> TODO()
-            is InProgress -> TODO()
-            is Paused -> TODO()
+            is Countdown -> {
+                tickProvider.stop()
+                phase = Paused(localPhase.ticksFromPreviousPhase)
+            }
+            is InProgress -> {
+                tickProvider.stop()
+                phase = Paused(workoutInProgressCalculator.removeLatestRepFromTicks(exercise, localPhase.ticks))
+            }
+            is Paused -> {
+                phase = Countdown(localPhase.ticksFromPreviousPhase)
+                tickProvider.start()
+            }
             is BetweenSets -> TODO()
         }
     }
@@ -89,7 +98,7 @@ class WorkoutViewModel @Inject constructor(
                 if (repCounter > 0) {
                     _state.update { (it as WorkoutScreenState.Content).copy(repCounter = repCounter) }
                 } else {
-                    phase = InProgress()
+                    phase = InProgress(localPhase.ticksFromPreviousPhase)
                     onTick()
                 }
             }
