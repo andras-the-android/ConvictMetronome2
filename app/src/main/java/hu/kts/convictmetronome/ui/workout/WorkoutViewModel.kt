@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.kts.convictmetronome.core.Sounds
 import hu.kts.convictmetronome.core.TickProvider
+import hu.kts.convictmetronome.core.tickPeriod
 import hu.kts.convictmetronome.persistency.Exercise
 import hu.kts.convictmetronome.repository.ExerciseRepository
 import hu.kts.convictmetronome.ui.workout.WorkoutPhase.BetweenSets
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -69,22 +71,32 @@ class WorkoutViewModel @Inject constructor(
             }
             is Countdown -> {
                 tickProvider.stop()
-                phase = Paused(localPhase.ticksFromPreviousPhase)
+                phase = Paused(ticksFromPreviousPhase = localPhase.ticksFromPreviousPhase)
             }
             is InProgress -> {
+                sounds.stop()
                 tickProvider.stop()
-                phase = Paused(workoutInProgressCalculator.removeLatestRepFromTicks(exercise, localPhase.ticks))
+                phase = Paused(
+                    ticksFromPreviousPhase =
+                    workoutInProgressCalculator.removeLatestRepFromTicks(exercise, localPhase.ticks))
             }
             is Paused -> {
-                phase = Countdown(localPhase.ticksFromPreviousPhase)
+                phase = Countdown(ticksFromPreviousPhase = localPhase.ticksFromPreviousPhase)
                 tickProvider.start()
             }
-            is BetweenSets -> TODO()
+            is BetweenSets -> {
+                phase = Countdown()
+            }
         }
     }
 
     fun onCounterLongClick(): Boolean {
         if (!this::exercise.isInitialized) throw IllegalStateException("Click events should not happen before exercise initialization")
+        val localePhase = phase
+        if (localePhase is InProgress) {
+            sounds.stop()
+            phase = BetweenSets()
+        }
         return false
     }
 
@@ -96,7 +108,7 @@ class WorkoutViewModel @Inject constructor(
             is Countdown -> {
                 val repCounter = countdownCalculator.getCounter(exercise, localPhase.ticks)
                 if (repCounter > 0) {
-                    _state.update { (it as WorkoutScreenState.Content).copy(repCounter = repCounter) }
+                    _state.update { (it as WorkoutScreenState.Content).copy(repCounter = repCounter, interSetClock = "") }
                 } else {
                     phase = InProgress(localPhase.ticksFromPreviousPhase)
                     onTick()
@@ -116,8 +128,24 @@ class WorkoutViewModel @Inject constructor(
             }
 
             is Paused -> throw IllegalStateException("Tick provider should not run when state is paused")
-            is BetweenSets -> TODO()
+
+            is BetweenSets -> {
+                val clock = betweenSetsCalculator.getClock(localPhase.ticks)
+                _state.update {
+                    (it as WorkoutScreenState.Content).copy(
+                        interSetClock = clock,
+                        // increase the completed sets if this is the first tick in the phase
+                        completedSets = if (localPhase.ticks == 0) it.completedSets + 1 else it.completedSets
+                    )
+                }
+                // beep after every elapsed minutes
+                if (localPhase.ticks > 0 && (localPhase.ticks % beepTicks) == 0) sounds.beep()
+            }
         }
+    }
+
+    companion object {
+        private val beepTicks = TimeUnit.MINUTES.toMillis(1).toInt() / tickPeriod
     }
 
 }

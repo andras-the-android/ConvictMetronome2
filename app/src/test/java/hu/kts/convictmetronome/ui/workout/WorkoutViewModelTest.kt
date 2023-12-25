@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test
 class WorkoutViewModelTest {
 
     private val tickProvider = mockk<TickProvider>()
-    private val sounds = mockk<Sounds>()
+    private val sounds = mockk<Sounds>(relaxed = true)
     private val exerciseRepository = mockk<ExerciseRepository>()
     private val countdownCalculator = CountdownCalculator()
     private val inProgressCalculator = WorkoutInProgressCalculator()
@@ -57,8 +57,6 @@ class WorkoutViewModelTest {
         every { tickProvider.tickFlow } returns tickFlow
         every { tickProvider.start() } just runs
         every { tickProvider.stop() } just runs
-        every { sounds.makeUpSound() } just runs
-        every { sounds.makeDownSound() } just runs
 
         underTest = WorkoutViewModel(tickProvider, sounds, exerciseRepository, countdownCalculator, inProgressCalculator, betweenSetsCalculator)
         // we need this workaround because turbine unable to test a SharedFlow with 0 replay
@@ -162,6 +160,42 @@ class WorkoutViewModelTest {
             tick(17)
             assertEquals(WorkoutScreenState.Content(repCounter = 3), awaitItem())
         }
+    }
+
+    @Test
+    fun `complete a set and then start the next one`() = runTest {
+        underTest.onCounterClick()
+        tickRange(0, 40) // countdown + 2 rep + 3 tick
+        underTest.state.test {
+            assertEquals(WorkoutScreenState.Content(repCounter = 2), awaitItem())
+            underTest.onCounterLongClick()
+            // between sets
+            tick(0)
+            assertEquals(WorkoutScreenState.Content(repCounter = 2, interSetClock = "00:00", completedSets = 1), awaitItem())
+            tickRange(1, 120)
+            skipItems(59)
+            assertEquals(WorkoutScreenState.Content(repCounter = 2, interSetClock = "01:00", completedSets = 1), awaitItem())
+            underTest.onCounterClick()
+            // countdown
+            tick(0)
+            assertEquals(WorkoutScreenState.Content(3, completedSets = 1), awaitItem())
+            tick(1)
+            tick(2)
+            assertEquals(WorkoutScreenState.Content(2, completedSets = 1), awaitItem())
+            tick(3)
+            tick(4)
+            assertEquals(WorkoutScreenState.Content(1, completedSets = 1), awaitItem())
+            tick(5)
+            tick(6)
+
+            // set continues from rep 2
+            assertEquals(WorkoutScreenState.Content(repCounter = 0, completedSets = 1), awaitItem())
+            tickRange(7, 11)
+            expectNoEvents()
+            tick(18)
+            assertEquals(WorkoutScreenState.Content(repCounter = 1, completedSets = 1), awaitItem())
+        }
+        verify(exactly = 1) { sounds.beep() }
     }
 
     private suspend fun tickRange(start: Int, times: Int) {
