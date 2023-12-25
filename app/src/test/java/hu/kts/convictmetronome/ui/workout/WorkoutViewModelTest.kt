@@ -160,6 +160,7 @@ class WorkoutViewModelTest {
             tick(17)
             assertEquals(WorkoutScreenState.Content(repCounter = 3), awaitItem())
         }
+        verify(exactly = 1) { sounds.stop() }
     }
 
     @Test
@@ -196,6 +197,7 @@ class WorkoutViewModelTest {
             assertEquals(WorkoutScreenState.Content(repCounter = 1, completedSets = 1), awaitItem())
         }
         verify(exactly = 1) { sounds.beep() }
+        verify(exactly = 1) { sounds.stop() }
     }
 
     @Test
