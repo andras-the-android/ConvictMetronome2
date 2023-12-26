@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Convict Metronome</string>
+    <string name="help_before_start">Tap the counter to start a workout</string>
+    <string name="help_in_progress">Tap the counter to pause\n\nHold down the counter to finish set</string>
+    <string name="help_paused">Tap the counter to resume\n\nHold down the counter to finish set</string>
+    <string name="help_between_sets">Tap the counter to start a new set\n\nHold down the counter to reset workout</string>
+    <string name="empty_string"></string>
+    <string name="banner_ad_unit_id">ca-app-pub-3891048739907811/7842466287</string>
+    <string name="set_counter_label">Sets completed: </string>
+    <string name="menu_settings">Settings</string>
+    <string name="settings_show_help">Show help</string>
+    <string name="settings_countdown_start_value">Countdown from</string>
+    <string name="settings_rep_up_time">Up duration</string>
+    <string name="settings_rep_down_time">Down duration</string>
+    <string name="settings_rep_pause_up_time">Pause up duration</string>í
+    <string name="settings_rep_pause_down_time">Pause down duration</string>
+    <string name="settings_diagnostics">Anonymous diagnostics</string>
+    <string name="settings_diagnostics_message">This feature provides anonymous information which will improve user experience and help uncover bugs. Please help the developer by enabling this function.</string>
+    <string name="settings_diagnostics_keep">Keep it enabled</string>
+    <string name="settings_diagnostics_turn_off">Turn off</string>
+    <string name="admob_app_id">ca-app-pub-3891048739907811~3412266686</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="rep_is_empty_message">Rep length is 0. Set up values in Settings!</string>
+    <string name="settings_category_reps">Reps</string>
+    <string name="settings_category_general">General</string>
+    <string name="settings_start_with_up">Start with up</string>
+    <string name="settings_play_sound">Play sound</string>
 </resources>
