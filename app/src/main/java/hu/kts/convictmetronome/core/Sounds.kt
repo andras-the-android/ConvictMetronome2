@@ -52,9 +52,12 @@ class Sounds @Inject constructor(
     private fun playSound(up: Boolean) {
         tryStop()
         coroutineScope.launch {
-            audioTrack.setVolume(AudioTrack.getMaxVolume())
-            audioTrack.play()
-            soundArrayGenerationJob?.join()
+            audioTrack.run {
+                if (playState != AudioTrack.PLAYSTATE_PLAYING) {
+                    setVolume(AudioTrack.getMaxVolume())
+                    play()
+                }
+            }
             audioTrack.write(if (up) sampleArrayUp else sampleArrayDown, 0, if (up) sampleArrayUp.size else sampleArrayDown.size)
 
             tryStop()
@@ -64,8 +67,8 @@ class Sounds @Inject constructor(
     private fun tryStop() {
         audioTrack.run {
             if (playState != AudioTrack.PLAYSTATE_STOPPED) {
-                stop()
-                release()
+                pause()
+                flush()
             }
         }
     }
