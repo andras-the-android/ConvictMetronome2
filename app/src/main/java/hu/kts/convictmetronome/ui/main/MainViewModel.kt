@@ -1,30 +1,30 @@
 package hu.kts.convictmetronome.ui.main
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.kts.convictmetronome.persistency.Exercise
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import hu.kts.convictmetronome.repository.ExerciseRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(): ViewModel() {
+class MainViewModel @Inject constructor(
+    exerciseRepository: ExerciseRepository
+): ViewModel() {
 
-    private val _state = MutableStateFlow<MainScreenState>(MainScreenState.Loading)
-    val state = _state.asStateFlow()
-
-    init {
-        _state.value = MainScreenState.Content(
-            exercises = listOf(
-                Exercise.default.copy(id = 0, name = "Push up"),
-                Exercise.default.copy(id = 1, name = "Pull up"),
-                Exercise.default.copy(id = 2, name = "Squat"),
-            ),
-            selectedExerciseId = 1,
-            title = "Pull up"
+    val state = exerciseRepository.allExercises.combine(exerciseRepository.selectedExercise) { exercises, selectedExercise ->
+        println()
+        MainScreenState.Content(
+            exercises = exercises,
+            selectedExerciseId = selectedExercise.id,
+            title = selectedExercise.name,
         )
-    }
-
-
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        MainScreenState.Loading
+    )
 
 }

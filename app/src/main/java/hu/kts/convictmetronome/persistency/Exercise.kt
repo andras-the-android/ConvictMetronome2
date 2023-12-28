@@ -27,8 +27,9 @@ data class Exercise(
     fun calcRepDuration() = downMillis + lowerHoldMillis + upMillis + upperHoldMillis
 
     companion object {
+        const val defaultId = 0
         val default = Exercise(
-            id = 0,
+            id = defaultId,
             name = "default",
             countdownFromMillis = 3000,
             startWithUp = false,
@@ -37,5 +38,8 @@ data class Exercise(
             downMillis = 2000,
             lowerHoldMillis = 1000
         )
+
+        const val emptyId = -1
+        val empty = default.copy(id = emptyId)
     }
 }

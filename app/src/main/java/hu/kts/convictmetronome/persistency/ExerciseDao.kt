@@ -1,15 +1,19 @@
 package hu.kts.convictmetronome.persistency
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExerciseDao {
 
     @Query("SELECT * FROM exercise")
-    suspend fun getAll(): List<Exercise>
+    fun getAll(): Flow<List<Exercise>>
 
-    @Insert
-    suspend fun insertAll(exercise: Exercise)
+    @Query("SELECT * FROM exercise WHERE id == :id")
+    suspend fun getById(id: Int): Exercise?
+
+    @Upsert
+    suspend fun upsert(exercise: Exercise): Long
 }
