@@ -4,22 +4,31 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.kts.convictmetronome.repository.ExerciseRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val exerciseRepository: ExerciseRepository
-): ViewModel() {
+): ViewModel(), AppBarActionCallbacks {
 
-    val state = exerciseRepository.allExercises.combine(exerciseRepository.selectedExercise) { exercises, selectedExercise ->
+    private val actionState = MutableStateFlow(AppBarActionState())
+
+    val state = combine(
+        exerciseRepository.allExercises,
+        exerciseRepository.selectedExercise,
+        actionState
+    ) { exercises, selectedExercise, actionState ->
         println()
         MainScreenState.Content(
             exercises = exercises,
             selectedExerciseId = selectedExercise.id,
             title = selectedExercise.name,
+            appBarActionState = actionState
         )
     }.stateIn(
         viewModelScope,
@@ -29,6 +38,10 @@ class MainViewModel @Inject constructor(
 
     fun selectExercise(id: Int) {
         exerciseRepository.selectExercise(id)
+    }
+
+    override fun onOptionsActionClicked() {
+        actionState.update { it.copy(optionsMenuExpanded = it.optionsMenuExpanded.not()) }
     }
 
 }

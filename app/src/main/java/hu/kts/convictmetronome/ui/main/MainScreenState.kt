@@ -8,5 +8,6 @@ sealed interface MainScreenState {
         val title: String,
         val exercises: List<Exercise>,
         val selectedExerciseId: Int,
+        val appBarActionState: AppBarActionState
     ): MainScreenState
 }
