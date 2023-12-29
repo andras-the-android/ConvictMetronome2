@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.time.Clock
@@ -24,7 +25,9 @@ object AppModule {
 
     @Provides
     fun provideCoroutineScope(): CoroutineScope {
-        return CoroutineScope(Dispatchers.IO)
+        // we don't have Crashlytics, so at least this way the exceptions won't be swallowed
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable -> throw throwable }
+        return CoroutineScope(Dispatchers.IO + exceptionHandler)
     }
 
     @Provides
