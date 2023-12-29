@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.AndroidEntryPoint
+import hu.kts.convictmetronome.ui.exercise.ExerciseSheet
+import hu.kts.convictmetronome.ui.exercise.ExerciseSheetState
+import hu.kts.convictmetronome.ui.exercise.ExerciseViewModel
 import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
 import hu.kts.convictmetronome.ui.workout.WorkoutScreen
 import hu.kts.convictmetronome.ui.workout.WorkoutScreenState
@@ -31,6 +34,8 @@ class MainActivity : ComponentActivity() {
                 val workoutState: WorkoutScreenState by workoutViewModel.state.collectAsStateWithLifecycle()
                 val mainViewModel: MainViewModel = viewModel()
                 val mainState: MainScreenState by mainViewModel.state.collectAsStateWithLifecycle()
+                val exerciseViewModel: ExerciseViewModel = viewModel()
+                val exerciseState: ExerciseSheetState by exerciseViewModel.state.collectAsStateWithLifecycle()
 
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val coroutineScope = rememberCoroutineScope()
@@ -41,8 +46,8 @@ class MainActivity : ComponentActivity() {
                     CmDrawer(
                         exercises = mainContent.exercises,
                         selectedExerciseId = mainContent.selectedExerciseId,
-                        onExerciseClick = {},
-                        onCreateNewClick = {},
+                        onExerciseClick = mainViewModel::selectExercise,
+                        onCreateNewClick = exerciseViewModel::createNewExercise,
                         drawerState = drawerState,
                         coroutineScope = coroutineScope,
                     ) {
@@ -56,6 +61,15 @@ class MainActivity : ComponentActivity() {
                                     onClick = workoutViewModel::onCounterClick,
                                     onLongClick = workoutViewModel::onCounterLongClick,
                                 )
+
+                                if (exerciseState is ExerciseSheetState.Showing) {
+                                    ExerciseSheet(
+                                        onDismissRequest = exerciseViewModel::dismissSheet,
+                                        state = exerciseState as ExerciseSheetState.Showing,
+                                        callbacks = exerciseViewModel
+                                    )
+                                }
+
                             }
                         }
                     }

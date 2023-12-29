@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    exerciseRepository: ExerciseRepository
+    private val exerciseRepository: ExerciseRepository
 ): ViewModel() {
 
     val state = exerciseRepository.allExercises.combine(exerciseRepository.selectedExercise) { exercises, selectedExercise ->
@@ -26,5 +26,9 @@ class MainViewModel @Inject constructor(
         SharingStarted.WhileSubscribed(5000),
         MainScreenState.Loading
     )
+
+    fun selectExercise(id: Int) {
+        exerciseRepository.selectExercise(id)
+    }
 
 }

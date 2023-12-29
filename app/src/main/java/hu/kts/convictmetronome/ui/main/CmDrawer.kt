@@ -16,6 +16,7 @@ import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.persistency.Exercise
 import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun CmDrawer(
@@ -33,7 +34,9 @@ fun CmDrawer(
             exercises = exercises,
             selectedExerciseId = selectedExerciseId,
             onExerciseClick = onExerciseClick,
-            onCreateNewClick = onCreateNewClick
+            onCreateNewClick = onCreateNewClick,
+            drawerState = drawerState,
+            coroutineScope = coroutineScope,
         )},
         content = content,
     )
@@ -45,20 +48,32 @@ private fun DrawerContent(
     selectedExerciseId: Int,
     onExerciseClick: (id: Int) -> Unit,
     onCreateNewClick: () -> Unit,
+    drawerState: DrawerState,
+    coroutineScope: CoroutineScope,
 ) {
     ModalDrawerSheet {
         exercises.forEach { exercise ->
             NavigationDrawerItem(
                 label = { Text(text = exercise.name) },
                 selected = selectedExerciseId == exercise.id,
-                onClick = { onExerciseClick(exercise.id) }
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState.close()
+                        onExerciseClick(exercise.id)
+                    }
+                }
             )
         }
         Divider()
         NavigationDrawerItem(
             label = { Text(text = stringResource(id = R.string.drawer_create_new)) },
             selected = false,
-            onClick = { onCreateNewClick() }
+            onClick = {
+                coroutineScope.launch {
+                    drawerState.close()
+                    onCreateNewClick()
+                }
+            }
         )
     }
 }
@@ -75,7 +90,10 @@ private fun PreviewDrawer() {
             ),
             selectedExerciseId = 1,
             onExerciseClick = {},
-            onCreateNewClick = {}
+            onCreateNewClick = {},
+            drawerState = DrawerState(initialValue = DrawerValue.Open),
+            coroutineScope = rememberCoroutineScope()
+
         )
     }
 }

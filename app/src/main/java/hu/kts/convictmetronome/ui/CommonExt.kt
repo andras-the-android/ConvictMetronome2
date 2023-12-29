@@ -35,3 +35,7 @@ fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
         }
     }
 }
+
+fun Int.millisToSecs() = this / 1000f
+
+fun Float.secsToMillis() = (this * 1000).toInt()

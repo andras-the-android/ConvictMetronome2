@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,66 +27,54 @@ import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
 import hu.kts.convictmetronome.ui.toAnnotatedString
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExerciseScreen(
-    state: ExerciseScreenState,
-    onNameChange: (CharSequence) -> Unit,
-    onStartWithUpChange: (Boolean) -> Unit,
-    onCountdownFromChange: (Int) -> Unit,
-    onDownChange: (Int) -> Unit,
-    onLowerHoldChange: (Int) -> Unit,
-    onUpChange: (Int) -> Unit,
-    onUpperHoldChange: (Int) -> Unit,
+fun ExerciseSheet(
+    onDismissRequest: () -> Unit,
+    state: ExerciseSheetState.Showing,
+    callbacks: ExerciseSheetCallbacks
 ) {
-    Column {
-        TextField(value = state.name, onValueChange = onNameChange)
+    ModalBottomSheet(onDismissRequest = onDismissRequest) {
+        TextField(value = state.name, onValueChange = { callbacks.onNameChange(it) })
 
         ExerciseItem(
             titleResId = R.string.exercise_countdown_from,
             value = state.countdownFromSeconds,
-            position = state.countdownFromPosition,
-            positions = state.countdownFromPositions,
-            onValueChange = onCountdownFromChange
-        )
+            position = state.countdownFromPosition
+        ) { callbacks.onCountdownFromChange(it) }
 
         Row {
             Text(text = stringResource(id = R.string.exercise_start_with_up))
-            Checkbox(checked = state.startWithUp, onCheckedChange = onStartWithUpChange)
+            Checkbox(checked = state.startWithUp, onCheckedChange = { callbacks.onStartWithUpChange(it) })
         }
 
         ExerciseItem(
             titleResId = R.string.exercise_down_duration,
             value = state.downSeconds,
-            position = state.downPosition,
-            positions = state.downPositions,
-            onValueChange = onDownChange
-        )
+            position = state.downPosition
+        ) { callbacks.onDownChange(it) }
 
         ExerciseItem(
             titleResId = R.string.exercise_lower_hold_duration,
             value = state.lowerHoldSeconds,
-            position = state.lowerHoldPosition,
-            positions = state.lowerHoldPositions,
-            onValueChange = onLowerHoldChange
-        )
+            position = state.lowerHoldPosition
+        ) { callbacks.onLowerHoldChange(it) }
 
         ExerciseItem(
             titleResId = R.string.exercise_up_duration,
             value = state.upSeconds,
-            position = state.upPosition,
-            positions = state.upPositions,
-            onValueChange = onUpChange
-        )
+            position = state.upPosition
+        ) { callbacks.onUpChange(it) }
 
         ExerciseItem(
             titleResId = R.string.exercise_upper_hold_duration,
             value = state.upperHoldSeconds,
-            position = state.upperHoldPosition,
-            positions = state.upperHoldPositions,
-            onValueChange = onUpperHoldChange
-        )
+            position = state.upperHoldPosition
+        ) { callbacks.onUpperHoldChange(it) }
 
-
+        OutlinedButton(onClick = { callbacks.onSaveClicked()}) {
+            Text(text = stringResource(id = R.string.generic_save))
+        }
     }
 }
 
@@ -92,7 +83,6 @@ private fun ExerciseItem(
     @StringRes titleResId: Int,
     value: Float,
     position: Int,
-    positions: Int,
     onValueChange: (Int) -> Unit
 ) {
     Column {
@@ -106,11 +96,13 @@ private fun ExerciseItem(
         Slider(
             value = position.toFloat(),
             onValueChange = { onValueChange(it.toInt()) },
-            valueRange = 0f..positions - 1f,
-            steps = positions
+            valueRange = 0f..steps - 1f,
+            steps = steps
         )
     }
 }
+
+private val steps = ExerciseProperties.valuesInSeconds.count()
 
 @Preview(showBackground = true)
 @Composable
@@ -122,54 +114,53 @@ fun PreviewExerciseItem() {
         ExerciseItem(
             titleResId = R.string.exercise_down_duration,
             value = value,
-            position = position,
-            positions = positions.size,
-            onValueChange = {
-                position = it
-                value = positions[it]
-            })
+            position = position
+        ) {
+            position = it
+            value = positions[it]
+        }
     }
 }
 
 @Preview(showSystemUi = true)
 @Composable
-fun PreviewExerciseScreen() {
+fun PreviewExerciseSheet() {
     ConvictMetronomeTheme {
-        val state =ExerciseScreenState(
+        val state = ExerciseSheetState.Showing(
+            id = 0,
             name = "Sample",
             
             countdownFromSeconds = 3.0F,
             countdownFromPosition = 3,
-            countdownFromPositions = 6,
 
             startWithUp = false,
 
             downSeconds = 3.0F,
             downPosition = 3,
-            downPositions = 6,
-            
+
             lowerHoldSeconds = 3.0F,
             lowerHoldPosition = 3,
-            lowerHoldPositions = 6,
-            
+
             upSeconds = 3.0F,
             upPosition = 3,
-            upPositions = 6,
-            
+
             upperHoldSeconds = 3.0F,
             upperHoldPosition = 3,
-            upperHoldPositions = 6,
         )
 
-        ExerciseScreen(
+        ExerciseSheet(
+            onDismissRequest = {},
             state = state,
-            onNameChange = {},
-            onStartWithUpChange = {},
-            onCountdownFromChange = {},
-            onDownChange = {},
-            onLowerHoldChange = {},
-            onUpChange = {},
-            onUpperHoldChange = {},
+            callbacks = object : ExerciseSheetCallbacks {
+                override fun onNameChange(value: String) {}
+                override fun onStartWithUpChange(value: Boolean) {}
+                override fun onCountdownFromChange(value: Int) {}
+                override fun onDownChange(value: Int) {}
+                override fun onLowerHoldChange(value: Int) {}
+                override fun onUpChange(value: Int) {}
+                override fun onUpperHoldChange(value: Int) {}
+                override fun onSaveClicked() {}
+            }
         )
     }
 }

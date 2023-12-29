@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ExerciseRepository @Inject constructor(
     private val dao: ExerciseDao,
     private val preferences: Preferences,
