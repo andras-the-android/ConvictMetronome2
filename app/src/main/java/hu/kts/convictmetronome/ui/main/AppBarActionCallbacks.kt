@@ -6,4 +6,9 @@ import androidx.compose.runtime.Stable
 interface AppBarActionCallbacks {
 
     fun onOptionsActionClicked()
+    fun dismissOptionsMenu()
+
+    fun onDeleteExerciseClicked()
+    fun onConfirmDeleteExercise()
+    fun dismissConfirmDeleteExerciseDialog()
 }

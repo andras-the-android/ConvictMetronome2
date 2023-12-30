@@ -1,5 +1,6 @@
 package hu.kts.convictmetronome.ui.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,12 +24,13 @@ class MainViewModel @Inject constructor(
         exerciseRepository.selectedExercise,
         actionState
     ) { exercises, selectedExercise, actionState ->
-        println()
+        Log.d("tagmain", "${exercises.count()} exercises, ${selectedExercise.name} selected, action state: $actionState")
         MainScreenState.Content(
             exercises = exercises,
             selectedExerciseId = selectedExercise.id,
             title = selectedExercise.name,
-            appBarActionState = actionState
+            optionsMenuExpanded = actionState.optionsMenuExpanded,
+            showConfirmDeleteExerciseDialog = actionState.showConfirmDeleteExerciseDialog
         )
     }.stateIn(
         viewModelScope,
@@ -42,6 +44,23 @@ class MainViewModel @Inject constructor(
 
     override fun onOptionsActionClicked() {
         actionState.update { it.copy(optionsMenuExpanded = it.optionsMenuExpanded.not()) }
+    }
+
+    override fun dismissOptionsMenu() {
+        actionState.update { it.copy(optionsMenuExpanded = false) }
+    }
+
+    override fun onDeleteExerciseClicked() {
+        actionState.update { it.copy(optionsMenuExpanded = false, showConfirmDeleteExerciseDialog = true) }
+    }
+
+    override fun onConfirmDeleteExercise() {
+        dismissConfirmDeleteExerciseDialog()
+        exerciseRepository.deleteSelectedExercise()
+    }
+
+    override fun dismissConfirmDeleteExerciseDialog() {
+        actionState.update { it.copy(showConfirmDeleteExerciseDialog = false) }
     }
 
 }

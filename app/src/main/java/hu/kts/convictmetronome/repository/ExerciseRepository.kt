@@ -29,8 +29,6 @@ class ExerciseRepository @Inject constructor(
         }
     }
 
-    suspend fun getById(id: Int) = dao.getById(id) ?: Exercise.default
-
     fun selectExercise(id: Int) {
         coroutineScope.launch {
             preferences.selectedExerciseId = id
@@ -44,6 +42,14 @@ class ExerciseRepository @Inject constructor(
             if (id > 0) { // update returns -1 id
                 preferences.selectedExerciseId = id
             }
+            loadSelectedFromDatabase()
+        }
+    }
+
+    fun deleteSelectedExercise() {
+        coroutineScope.launch {
+            dao.deleteById(preferences.selectedExerciseId)
+            preferences.selectedExerciseId = dao.getFirstId()
             loadSelectedFromDatabase()
         }
     }

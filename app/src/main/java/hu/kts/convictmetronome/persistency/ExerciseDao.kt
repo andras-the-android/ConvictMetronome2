@@ -16,4 +16,10 @@ interface ExerciseDao {
 
     @Upsert
     suspend fun upsert(exercise: Exercise): Long
+
+    @Query("DELETE FROM exercise WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
+    @Query("SELECT id FROM exercise LIMIT 1")
+    suspend fun getFirstId(): Int
 }

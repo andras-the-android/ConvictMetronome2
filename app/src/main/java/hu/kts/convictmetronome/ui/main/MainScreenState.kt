@@ -8,6 +8,11 @@ sealed interface MainScreenState {
         val title: String,
         val exercises: List<Exercise>,
         val selectedExerciseId: Int,
-        val appBarActionState: AppBarActionState
-    ): MainScreenState
+        val optionsMenuExpanded: Boolean,
+        val showConfirmDeleteExerciseDialog: Boolean,
+    ): MainScreenState {
+
+        val deleteEnabled
+            get() = exercises.count() > 1
+    }
 }
