@@ -52,11 +52,8 @@ class MainActivity : ComponentActivity() {
                         coroutineScope = coroutineScope,
                     ) {
                         MainScreen(
-                            title = mainContent.title,
                             openDrawer = { coroutineScope.launch { drawerState.open() } },
-                            optionsMenuExpanded = mainContent.optionsMenuExpanded,
-                            deleteEnabled = mainContent.deleteEnabled,
-                            showConfirmDeleteExerciseDialog = mainContent.showConfirmDeleteExerciseDialog,
+                            state = mainContent,
                             appBarActionCallbacks = mainViewModel,
                             onEditExerciseClicked = exerciseViewModel::editSelectedExercise,
                         ) {

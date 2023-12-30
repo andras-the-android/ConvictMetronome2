@@ -21,11 +21,8 @@ import hu.kts.convictmetronome.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    title: String,
     openDrawer: () -> Unit,
-    optionsMenuExpanded: Boolean,
-    deleteEnabled: Boolean,
-    showConfirmDeleteExerciseDialog: Boolean,
+    state: MainScreenState.Content,
     appBarActionCallbacks: AppBarActionCallbacks,
     onEditExerciseClicked: () -> Unit,
     content: @Composable (PaddingValues) -> Unit
@@ -33,7 +30,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title) },
+                title = { Text(state.title) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(Icons.Outlined.Menu, stringResource(id = R.string.drawer_open))
@@ -41,8 +38,8 @@ fun MainScreen(
                 },
                 actions = {
                     OptionsMenu(
-                        optionsMenuExpanded = optionsMenuExpanded,
-                        deleteEnabled = deleteEnabled,
+                        expanded = state.optionsMenuExpanded,
+                        deleteEnabled = state.deleteEnabled,
                         actionCallbacks = appBarActionCallbacks,
                         onEditExerciseClicked = onEditExerciseClicked
                     )
@@ -53,7 +50,7 @@ fun MainScreen(
         content = content
     )
 
-    if (showConfirmDeleteExerciseDialog) {
+    if (state.showConfirmDeleteExerciseDialog) {
         AlertDialog(
             onDismissRequest = { appBarActionCallbacks.dismissConfirmDeleteExerciseDialog() },
             confirmButton = { TextButton(onClick = { appBarActionCallbacks.onConfirmDeleteExercise() }) {
@@ -62,7 +59,7 @@ fun MainScreen(
             dismissButton = { TextButton(onClick = { appBarActionCallbacks.dismissConfirmDeleteExerciseDialog() }) {
                 Text(stringResource(id = R.string.generic_cancel))
             } },
-            title = { Text(stringResource(id = R.string.exercise_delete)) },
+            title = { Text(stringResource(id = R.string.app_bar_delete)) },
             text = { Text(stringResource(id = R.string.generic_are_you_sure)) }
         )
     }
@@ -70,32 +67,30 @@ fun MainScreen(
 
 @Composable
 private fun OptionsMenu(
-    optionsMenuExpanded: Boolean,
+    expanded: Boolean,
     deleteEnabled: Boolean,
     actionCallbacks: AppBarActionCallbacks,
     onEditExerciseClicked: () -> Unit,
 ) {
-    IconButton(onClick = { actionCallbacks.onOptionsActionClicked() }) {
-        Icon(Icons.Outlined.MoreVert, stringResource(id = R.string.exercise_options_menu))
+    IconButton(onClick = actionCallbacks::onOptionsActionClicked) {
+        Icon(Icons.Outlined.MoreVert, stringResource(id = R.string.app_bar_options_menu))
     }
 
     DropdownMenu(
-        expanded = optionsMenuExpanded,
-        onDismissRequest = { actionCallbacks.dismissOptionsMenu() }
+        expanded = expanded,
+        onDismissRequest = actionCallbacks::dismissOptionsMenu
     ) {
         DropdownMenuItem(
-            text = { Text(stringResource(id = R.string.exercise_edit)) },
+            text = { Text(stringResource(id = R.string.app_bar_edit)) },
             onClick = {
                 actionCallbacks.dismissOptionsMenu()
                 onEditExerciseClicked()
             }
         )
         DropdownMenuItem(
-            text = { Text(stringResource(id = R.string.exercise_delete)) },
+            text = { Text(stringResource(id = R.string.app_bar_delete)) },
             enabled = deleteEnabled,
-            onClick = {
-                actionCallbacks.onDeleteExerciseClicked()
-            }
+            onClick = actionCallbacks::onDeleteExerciseClicked,
         )
 
     }
