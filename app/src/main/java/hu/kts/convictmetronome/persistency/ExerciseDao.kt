@@ -22,4 +22,7 @@ interface ExerciseDao {
 
     @Query("SELECT id FROM exercise LIMIT 1")
     suspend fun getFirstId(): Int
+
+    @Query("SELECT (SELECT COUNT(*) FROM exercise) == 0")
+    fun isEmpty(): Boolean
 }

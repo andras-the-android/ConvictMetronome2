@@ -6,7 +6,6 @@ import hu.kts.convictmetronome.persistency.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,10 +20,13 @@ class ExerciseRepository @Inject constructor(
     private val _selectedExercise = MutableStateFlow(Exercise.empty)
     val selectedExercise = _selectedExercise.asStateFlow()
 
-    val allExercises = dao.getAll().map { it.ifEmpty { listOf(Exercise.default) } }
+    val allExercises = dao.getAll()
 
     init {
         coroutineScope.launch {
+            if (dao.isEmpty()) {
+                dao.upsert(Exercise.default)
+            }
             loadSelectedFromDatabase()
         }
     }
