@@ -1,9 +1,6 @@
 package hu.kts.convictmetronome.ui.main
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.MoreVert
@@ -16,8 +13,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import hu.kts.convictmetronome.R
 
@@ -28,6 +23,7 @@ fun MainScreen(
     openDrawer: () -> Unit,
     appBarActionState: AppBarActionState,
     appBarActionCallbacks: AppBarActionCallbacks,
+    onEditExerciseClicked: () -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -40,7 +36,11 @@ fun MainScreen(
                     }
                 },
                 actions = {
-                    OptionsMenu(actionState = appBarActionState, actionCallbacks = appBarActionCallbacks)
+                    OptionsMenu(
+                        actionState = appBarActionState,
+                        actionCallbacks = appBarActionCallbacks,
+                        onEditExerciseClicked = onEditExerciseClicked
+                    )
                 }
 
             )
@@ -53,6 +53,7 @@ fun MainScreen(
 private fun OptionsMenu(
     actionState: AppBarActionState,
     actionCallbacks: AppBarActionCallbacks,
+    onEditExerciseClicked: () -> Unit,
 ) {
     IconButton(onClick = { actionCallbacks.onOptionsActionClicked() }) {
         Icon(Icons.Outlined.MoreVert, stringResource(id = R.string.exercise_options_menu))
@@ -64,7 +65,10 @@ private fun OptionsMenu(
     ) {
         DropdownMenuItem(
             text = { Text(stringResource(id = R.string.exercise_edit)) },
-            onClick = {  }
+            onClick = {
+                actionCallbacks.onOptionsActionClicked()
+                onEditExerciseClicked()
+            }
         )
     }
 }

@@ -25,6 +25,12 @@ class ExerciseViewModel @Inject constructor(
         }
     }
 
+    fun editSelectedExercise() {
+        viewModelScope.launch {
+            _state.value = ExerciseSheetState.Showing.fromExercise(repository.selectedExercise.value)
+        }
+    }
+
     fun dismissSheet() {
         _state.value = ExerciseSheetState.Hidden
     }

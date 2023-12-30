@@ -40,6 +40,6 @@ data class Exercise(
         )
 
         const val emptyId = -1
-        val empty = default.copy(id = emptyId)
+        val empty = default.copy(id = emptyId, name = "")
     }
 }

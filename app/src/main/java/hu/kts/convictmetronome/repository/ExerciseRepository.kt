@@ -41,7 +41,9 @@ class ExerciseRepository @Inject constructor(
     fun saveExercise(exercise: Exercise) {
         coroutineScope.launch {
             val id = dao.upsert(exercise).toInt()
-            preferences.selectedExerciseId = id
+            if (id > 0) { // update returns -1 id
+                preferences.selectedExerciseId = id
+            }
             loadSelectedFromDatabase()
         }
     }

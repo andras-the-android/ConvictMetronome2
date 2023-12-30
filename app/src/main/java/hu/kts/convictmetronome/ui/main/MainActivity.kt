@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
                             openDrawer = { coroutineScope.launch { drawerState.open() } },
                             appBarActionState = mainContent.appBarActionState,
                             appBarActionCallbacks = mainViewModel,
+                            onEditExerciseClicked = exerciseViewModel::editSelectedExercise,
                         ) {
                             Box(Modifier.padding(it)) {
                                 WorkoutScreen(
@@ -75,8 +76,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-
-
                 }
             }
         }
