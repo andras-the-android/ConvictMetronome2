@@ -33,9 +33,12 @@
     <string name="exercise_lower_hold_duration"><b>Lower hold duration:</b> %1$.1f seconds</string>
     <string name="exercise_up_duration"><b>Up duration:</b> %1$.1f seconds</string>
     <string name="exercise_upper_hold_duration"><b>Upper hold duration:</b> %1$.1f seconds</string>
-    <string name="exercise_options_menu">Options</string>
-    <string name="exercise_edit">Edit exercise</string>
-    <string name="exercise_delete">Delete exercise</string>
+
+    <string name="app_bar_options_menu">Options</string>
+    <string name="app_bar_edit">Edit exercise</string>
+    <string name="app_bar_delete">Delete exercise</string>
+    <string name="app_bar_volume">Volume</string>
+    <string name="app_bar_volume_explanation">Volume relative to the system volume</string>
 
     <string name="drawer_create_new">Create new</string>
     <string name="drawer_open">Open drawer</string>

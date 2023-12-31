@@ -10,6 +10,8 @@ sealed interface MainScreenState {
         val selectedExerciseId: Int,
         val optionsMenuExpanded: Boolean,
         val showConfirmDeleteExerciseDialog: Boolean,
+        val volumePopupExpanded: Boolean,
+        val volume: Float,
     ): MainScreenState {
 
         val deleteEnabled

@@ -1,6 +1,7 @@
 package hu.kts.convictmetronome.persistency
 
 import android.content.SharedPreferences
+import hu.kts.convictmetronome.core.Sounds
 import javax.inject.Inject
 
 class Preferences @Inject constructor(
@@ -15,8 +16,17 @@ class Preferences @Inject constructor(
             }.apply()
         }
 
+    var volume: Float
+        get() = sharedPreferences.getFloat(keyVolume, Sounds.maxVolume)
+        set(value) {
+            sharedPreferences.edit().apply {
+                putFloat(keyVolume, value)
+            }.apply()
+        }
+
     companion object {
         private const val keySelectedExerciseId = "keySelectedExerciseId"
+        private const val keyVolume = "keyVolume"
     }
 
 }

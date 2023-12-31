@@ -2,6 +2,7 @@ package hu.kts.convictmetronome.core
 
 import android.media.AudioTrack
 import android.media.ToneGenerator
+import hu.kts.convictmetronome.persistency.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -12,7 +13,8 @@ class Sounds @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val toneGenerator: ToneGenerator,
     private val audioTrack: AudioTrack,
-    private val soundArrayGenerator: SoundArrayGenerator
+    private val soundArrayGenerator: SoundArrayGenerator,
+    private val preferences: Preferences,
 ) {
 
     private var sampleArrayUp = ShortArray(0)
@@ -53,8 +55,8 @@ class Sounds @Inject constructor(
         tryStop()
         coroutineScope.launch {
             audioTrack.run {
+                setVolume(preferences.volume)
                 if (playState != AudioTrack.PLAYSTATE_PLAYING) {
-                    setVolume(AudioTrack.getMaxVolume())
                     play()
                 }
             }
@@ -73,6 +75,8 @@ class Sounds @Inject constructor(
         }
     }
 
-
+    companion object {
+        val maxVolume = AudioTrack.getMaxVolume()
+    }
 
 }

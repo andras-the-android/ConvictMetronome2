@@ -11,4 +11,8 @@ interface AppBarActionCallbacks {
     fun onDeleteExerciseClicked()
     fun onConfirmDeleteExercise()
     fun dismissConfirmDeleteExerciseDialog()
+
+    fun onVolumeActionClicked()
+    fun dismissVolumePopup()
+    fun onVolumeChange(value: Float)
 }

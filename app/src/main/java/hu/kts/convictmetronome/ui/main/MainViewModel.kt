@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import hu.kts.convictmetronome.persistency.Preferences
 import hu.kts.convictmetronome.repository.ExerciseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,10 +15,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val exerciseRepository: ExerciseRepository
+    private val exerciseRepository: ExerciseRepository,
+    private val preferences: Preferences,
 ): ViewModel(), AppBarActionCallbacks {
 
-    private val actionState = MutableStateFlow(AppBarActionState())
+    private val actionState = MutableStateFlow(AppBarActionState(volume = preferences.volume))
 
     val state = combine(
         exerciseRepository.allExercises,
@@ -30,7 +32,9 @@ class MainViewModel @Inject constructor(
             selectedExerciseId = selectedExercise.id,
             title = selectedExercise.name,
             optionsMenuExpanded = actionState.optionsMenuExpanded,
-            showConfirmDeleteExerciseDialog = actionState.showConfirmDeleteExerciseDialog
+            showConfirmDeleteExerciseDialog = actionState.showConfirmDeleteExerciseDialog,
+            volumePopupExpanded = actionState.volumePopupExpanded,
+            volume = actionState.volume
         )
     }.stateIn(
         viewModelScope,
@@ -61,6 +65,19 @@ class MainViewModel @Inject constructor(
 
     override fun dismissConfirmDeleteExerciseDialog() {
         actionState.update { it.copy(showConfirmDeleteExerciseDialog = false) }
+    }
+
+    override fun onVolumeActionClicked() {
+        actionState.update { it.copy(volumePopupExpanded = it.volumePopupExpanded.not()) }
+    }
+
+    override fun dismissVolumePopup() {
+        actionState.update { it.copy(volumePopupExpanded = false) }
+    }
+
+    override fun onVolumeChange(value: Float) {
+        preferences.volume = value
+        actionState.update { it.copy(volume = value) }
     }
 
 }
