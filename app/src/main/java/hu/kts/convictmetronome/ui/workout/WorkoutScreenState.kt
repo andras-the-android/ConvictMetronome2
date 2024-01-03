@@ -6,5 +6,6 @@ sealed interface WorkoutScreenState {
         val repCounter: Int = 0,
         val interSetClock: String = "",
         val completedSets: Int = 0,
+        val animationTargetState: WorkoutAnimationTargetState
     ): WorkoutScreenState
 }

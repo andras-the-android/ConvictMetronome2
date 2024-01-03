@@ -20,7 +20,7 @@ class WorkoutInProgressCalculatorTest {
         val underTest = WorkoutInProgressCalculator()
         assertEquals(
             expected,
-            underTest.getCounterAndSideEffect(exerciseStartDown, tickCount),
+            underTest.getCounterAndAnimationTarget(exerciseStartDown, tickCount),
             "tick #$tickCount"
         )
     }
@@ -31,7 +31,7 @@ class WorkoutInProgressCalculatorTest {
         val underTest = WorkoutInProgressCalculator()
         assertEquals(
             expected,
-            underTest.getCounterAndSideEffect(exerciseStartUp, tickCount),
+            underTest.getCounterAndAnimationTarget(exerciseStartUp, tickCount),
             "tick #$tickCount"
         )
     }

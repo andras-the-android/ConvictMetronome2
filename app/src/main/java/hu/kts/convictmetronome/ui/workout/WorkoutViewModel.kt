@@ -16,9 +16,7 @@ import hu.kts.convictmetronome.ui.workout.WorkoutPhase.Paused
 import hu.kts.convictmetronome.uilogic.BetweenSetsCalculator
 import hu.kts.convictmetronome.uilogic.CountdownCalculator
 import hu.kts.convictmetronome.uilogic.WorkoutInProgressCalculator
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -41,9 +39,6 @@ class WorkoutViewModel @Inject constructor(
     private val _state = MutableStateFlow<WorkoutScreenState>(WorkoutScreenState.Loading)
     val state = _state.asStateFlow()
 
-    private val _sideEffect = MutableSharedFlow<WorkoutSideEffect>()
-    val sideEffect = _sideEffect.asSharedFlow()
-
     init {
         viewModelScope.launch {
             tickProvider.tickFlow.collect { onTick() }
@@ -59,7 +54,9 @@ class WorkoutViewModel @Inject constructor(
         tickProvider.stop()
         phase = Initial
         this.exercise = exercise
-        _state.value = WorkoutScreenState.Content()
+        _state.value = WorkoutScreenState.Content(
+            animationTargetState = exercise.getInitialAnimationTargetState()
+        )
     }
 
     fun onCounterClick() {
@@ -79,6 +76,8 @@ class WorkoutViewModel @Inject constructor(
                 phase = Paused(
                     ticksFromPreviousPhase =
                     workoutInProgressCalculator.removeLatestRepFromTicks(exercise, localPhase.ticks))
+                resetAnimation()
+
             }
             is Paused -> {
                 phase = Countdown(ticksFromPreviousPhase = localPhase.ticksFromPreviousPhase)
@@ -96,6 +95,7 @@ class WorkoutViewModel @Inject constructor(
             is InProgress, is Paused -> {
                 sounds.stop()
                 phase = BetweenSets()
+                resetAnimation()
             }
 
             is BetweenSets -> {
@@ -107,7 +107,7 @@ class WorkoutViewModel @Inject constructor(
         return false
     }
 
-    private suspend fun onTick() {
+    private fun onTick() {
         when (val localPhase = ++phase) {
 
             is Initial -> throw IllegalStateException("Tick provider should not run when state is initial")
@@ -123,14 +123,11 @@ class WorkoutViewModel @Inject constructor(
             }
 
             is InProgress -> {
-                val (repCounter, sideEffect) = workoutInProgressCalculator.getCounterAndSideEffect(exercise, localPhase.ticks)
-                _state.update { (it as WorkoutScreenState.Content).copy(repCounter = repCounter) }
-                sideEffect?.let {
-                    when (it) {
-                        WorkoutSideEffect.animationUp -> sounds.makeUpSound()
-                        WorkoutSideEffect.animationDown -> sounds.makeDownSound()
-                    }
-                    _sideEffect.emit(it)
+                val (repCounter, newAnimationTargetState) = workoutInProgressCalculator.getCounterAndAnimationTarget(exercise, localPhase.ticks)
+                _state.update { (it as WorkoutScreenState.Content)
+                    .copy(
+                        repCounter = repCounter,
+                        animationTargetState = newAnimationTargetState ?: it.animationTargetState)
                 }
             }
 
@@ -151,8 +148,24 @@ class WorkoutViewModel @Inject constructor(
         }
     }
 
+    private fun Exercise.getInitialAnimationTargetState(): WorkoutAnimationTargetState {
+        return if (this.startWithUp)
+            WorkoutAnimationTargetState.Top(animationResetDuration)
+        else
+            WorkoutAnimationTargetState.Bottom(animationResetDuration)
+    }
+
+    private fun resetAnimation() {
+        _state.update {
+            (it as WorkoutScreenState.Content).copy(
+                animationTargetState = exercise.getInitialAnimationTargetState()
+            )
+        }
+    }
+
     companion object {
         private val beepTicks = TimeUnit.MINUTES.toMillis(1).toInt() / tickPeriod
+        const val animationResetDuration = 200
     }
 
 }
