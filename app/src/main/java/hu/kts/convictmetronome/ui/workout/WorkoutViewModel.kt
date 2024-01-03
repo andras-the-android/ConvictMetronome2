@@ -158,9 +158,9 @@ class WorkoutViewModel @Inject constructor(
 
     private fun Exercise.getInitialAnimationTargetState(): WorkoutAnimationTargetState {
         return if (this.startWithUp)
-            WorkoutAnimationTargetState.Top(animationResetDuration)
-        else
             WorkoutAnimationTargetState.Bottom(animationResetDuration)
+        else
+            WorkoutAnimationTargetState.Top(animationResetDuration)
     }
 
     private fun resetAnimation() {
