@@ -1,5 +1,6 @@
 package hu.kts.convictmetronome.ui.workout
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,6 +47,11 @@ class WorkoutViewModel @Inject constructor(
         viewModelScope.launch {
             exerciseRepository.selectedExercise.collect { exercise ->
                 initWorkout(exercise)
+            }
+        }
+        viewModelScope.launch {
+            _state.collect {
+                Log.i(tagWorkout, it.toString())
             }
         }
     }
@@ -113,6 +119,7 @@ class WorkoutViewModel @Inject constructor(
             is Initial -> throw IllegalStateException("Tick provider should not run when state is initial")
 
             is Countdown -> {
+                Log.v(tagWorkout, "countdown")
                 val repCounter = countdownCalculator.getCounter(exercise, localPhase.ticks)
                 if (repCounter > 0) {
                     _state.update { (it as WorkoutScreenState.Content).copy(repCounter = repCounter, interSetClock = "") }
@@ -124,6 +131,7 @@ class WorkoutViewModel @Inject constructor(
 
             is InProgress -> {
                 val (repCounter, newAnimationTargetState) = workoutInProgressCalculator.getCounterAndAnimationTarget(exercise, localPhase.ticks)
+                Log.v(tagWorkout, "in progress, rep counter: $repCounter, aimation state: $newAnimationTargetState")
                 _state.update { (it as WorkoutScreenState.Content)
                     .copy(
                         repCounter = repCounter,
@@ -166,6 +174,7 @@ class WorkoutViewModel @Inject constructor(
     companion object {
         private val beepTicks = TimeUnit.MINUTES.toMillis(1).toInt() / tickPeriod
         const val animationResetDuration = 200
+        const val tagWorkout = "tagworkout"
     }
 
 }
