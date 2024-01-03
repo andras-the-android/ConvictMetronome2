@@ -1,5 +1,9 @@
 package hu.kts.convictmetronome.ui.main
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -119,8 +123,14 @@ private fun VolumePopup(
         0f -> Icons.Outlined.VolumeOff
         else -> Icons.Outlined.VolumeDown
     }
-    IconButton(onClick = actionCallbacks::onVolumeActionClicked) {
-        Icon(imageVector, stringResource(id = R.string.app_bar_options_menu))
+    AnimatedContent(
+        targetState = imageVector,
+        label = "volume",
+        transitionSpec = { scaleIn() togetherWith scaleOut() },
+    ) {
+        IconButton(onClick = actionCallbacks::onVolumeActionClicked) {
+            Icon(it, stringResource(id = R.string.app_bar_volume))
+        }
     }
 
     DropdownMenu(
