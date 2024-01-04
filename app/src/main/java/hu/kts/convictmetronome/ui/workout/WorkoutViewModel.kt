@@ -122,7 +122,14 @@ class WorkoutViewModel @Inject constructor(
                 Log.v(tagWorkout, "countdown")
                 val repCounter = countdownCalculator.getCounter(exercise, localPhase.ticks)
                 if (repCounter > 0) {
-                    _state.update { (it as WorkoutScreenState.Content).copy(repCounter = repCounter, interSetClock = "") }
+                    _state.update {
+                        (it as WorkoutScreenState.Content)
+                            .copy(
+                                repCounter = repCounter,
+                                interSetClock = "",
+                                countdownInProgress = true
+                            )
+                    }
                 } else {
                     phase = InProgress(localPhase.ticksFromPreviousPhase)
                     onTick()
@@ -135,7 +142,9 @@ class WorkoutViewModel @Inject constructor(
                 _state.update { (it as WorkoutScreenState.Content)
                     .copy(
                         repCounter = repCounter,
-                        animationTargetState = newAnimationTargetState ?: it.animationTargetState)
+                        animationTargetState = newAnimationTargetState ?: it.animationTargetState,
+                        countdownInProgress = false
+                    )
                 }
             }
 
@@ -166,7 +175,8 @@ class WorkoutViewModel @Inject constructor(
     private fun resetAnimation() {
         _state.update {
             (it as WorkoutScreenState.Content).copy(
-                animationTargetState = exercise.getInitialAnimationTargetState()
+                animationTargetState = exercise.getInitialAnimationTargetState(),
+                countdownInProgress = false
             )
         }
     }

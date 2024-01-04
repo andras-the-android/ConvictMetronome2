@@ -1,9 +1,20 @@
 package hu.kts.convictmetronome.ui.workout
 
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -66,7 +77,7 @@ fun WorkoutScreen(
                         Color.White,
                         Color(0xFF42A5F5)
                     ),
-                    startY = size.height * (offset - animationGradientThickness) ,
+                    startY = size.height * (offset - animationGradientThickness),
                     endY = size.height * offset
                 )
                 onDrawBehind {
@@ -84,21 +95,26 @@ fun WorkoutScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = state.repCounter.toString(),
-                fontSize = 128.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .combinedClickable(
-                        onClick = onClick,
-                        onLongClick = {
-                            if (onLongClick()) {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            }
-                        },
-                    )
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            )
+            RepCounterAnimation(
+                counterText = state.repCounter.toString(),
+                countdownInProgress = state.countdownInProgress,
+            ) { counterText ->
+                Text(text = counterText,
+                    fontSize = 128.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .combinedClickable(
+                            onClick = onClick,
+                            onLongClick = {
+                                if (onLongClick()) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                }
+                            },
+                        )
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                )
+            }
             Text(
                 text = state.interSetClock,
                 fontSize = 40.sp,
@@ -108,12 +124,51 @@ fun WorkoutScreen(
             Row {
                 Text(text = stringResource(id = R.string.set_counter_label))
                 Text(text = state.completedSets.toString())
-
             }
-
         }
     }
 }
+
+@Composable
+private fun RepCounterAnimation(
+    counterText: String,
+    countdownInProgress: Boolean,
+    content: @Composable (String) -> Unit,
+) {
+    AnimatedContent(
+        targetState = counterText,
+        label = "content",
+        transitionSpec = if (countdownInProgress) countdownTransitionSpec else repCounterTransitionSpec,
+    ) {
+        content(it)
+    }
+}
+
+private val repCounterTransitionSpec: AnimatedContentTransitionScope<String>.() -> ContentTransform =
+    {
+        if (targetState < initialState) {
+            (slideInVertically { height -> height } + fadeIn()) togetherWith
+                    slideOutVertically { height -> -height } + fadeOut()
+        } else {
+            (slideInVertically { height -> -height } + fadeIn()) togetherWith
+                    slideOutVertically { height -> height } + fadeOut()
+        }.using(
+            SizeTransform(clip = false)
+        )
+    }
+
+private val countdownTransitionSpec: AnimatedContentTransitionScope<String>.() -> ContentTransform =
+    {
+        ((scaleIn() + fadeIn()) togetherWith
+                scaleOut(targetScale = 10f) + fadeOut())
+            .using(
+                // Disable clipping since the faded slide-in/out should
+                // be displayed out of bounds.
+                SizeTransform(clip = false)
+            )
+    }
+
+
 
 @Preview(showSystemUi = true)
 @Composable
