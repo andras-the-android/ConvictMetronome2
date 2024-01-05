@@ -138,11 +138,11 @@ class WorkoutViewModel @Inject constructor(
 
             is InProgress -> {
                 val (repCounter, newAnimationTargetState) = workoutInProgressCalculator.getCounterAndAnimationTarget(exercise, localPhase.ticks)
-                Log.v(tagWorkout, "in progress, rep counter: $repCounter, aimation state: $newAnimationTargetState")
+                Log.v(tagWorkout, "in progress, rep counter: $repCounter, animation state: $newAnimationTargetState")
                 _state.update { (it as WorkoutScreenState.Content)
                     .copy(
                         repCounter = repCounter,
-                        animationTargetState = newAnimationTargetState ?: it.animationTargetState,
+                        animationTargetState = newAnimationTargetState,
                         countdownInProgress = false
                     )
                 }

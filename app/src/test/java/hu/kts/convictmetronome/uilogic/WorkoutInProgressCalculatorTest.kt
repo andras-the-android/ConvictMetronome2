@@ -1,9 +1,7 @@
 package hu.kts.convictmetronome.uilogic
 
 import hu.kts.convictmetronome.persistency.Exercise
-import hu.kts.convictmetronome.ui.workout.WorkoutSideEffect
-import hu.kts.convictmetronome.ui.workout.WorkoutSideEffect.animationDown
-import hu.kts.convictmetronome.ui.workout.WorkoutSideEffect.animationUp
+import hu.kts.convictmetronome.ui.workout.WorkoutAnimationTargetState
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -16,7 +14,7 @@ class WorkoutInProgressCalculatorTest {
 
     @ParameterizedTest
     @MethodSource("provideValuesForStartDown")
-    fun `start down`(tickCount: Int, expected:  Pair<Int, WorkoutSideEffect?>) {
+    fun `start down`(tickCount: Int, expected:  Pair<Int, WorkoutAnimationTargetState?>) {
         val underTest = WorkoutInProgressCalculator()
         assertEquals(
             expected,
@@ -27,7 +25,7 @@ class WorkoutInProgressCalculatorTest {
 
     @ParameterizedTest
     @MethodSource("provideValuesForStartUp")
-    fun `start up`(tickCount: Int, expected:  Pair<Int, WorkoutSideEffect?>) {
+    fun `start up`(tickCount: Int, expected:  Pair<Int, WorkoutAnimationTargetState?>) {
         val underTest = WorkoutInProgressCalculator()
         assertEquals(
             expected,
@@ -50,30 +48,30 @@ class WorkoutInProgressCalculatorTest {
         private fun provideValuesForStartDown(): Stream<Arguments?>? {
             return Stream.of(
                 // down
-                Arguments.of(0, Pair(0, animationDown)),
-                Arguments.of(1, Pair(0, null)),
-                Arguments.of(2, Pair(0, null)),
-                Arguments.of(3, Pair(0, null)),
+                Arguments.of(0, Pair(0, animationTargetStateBottom)),
+                Arguments.of(1, Pair(0, animationTargetStateBottom)),
+                Arguments.of(2, Pair(0, animationTargetStateBottom)),
+                Arguments.of(3, Pair(0, animationTargetStateBottom)),
 
                 // lower hold
-                Arguments.of(4, Pair(0, null)),
-                Arguments.of(5, Pair(0, null)),
+                Arguments.of(4, Pair(0, animationTargetStateBottom)),
+                Arguments.of(5, Pair(0, animationTargetStateBottom)),
 
                 // up
-                Arguments.of(6, Pair(0, animationUp)),
-                Arguments.of(7, Pair(0, null)),
-                Arguments.of(8, Pair(0, null)),
-                Arguments.of(9, Pair(0, null)),
-                Arguments.of(10, Pair(0, null)),
-                Arguments.of(11, Pair(0, null)),
+                Arguments.of(6, Pair(0, animationTargetStateTop)),
+                Arguments.of(7, Pair(0, animationTargetStateTop)),
+                Arguments.of(8, Pair(0, animationTargetStateTop)),
+                Arguments.of(9, Pair(0, animationTargetStateTop)),
+                Arguments.of(10, Pair(0, animationTargetStateTop)),
+                Arguments.of(11, Pair(0, animationTargetStateTop)),
 
                 // upper hold
-                Arguments.of(12, Pair(0, null)),
+                Arguments.of(12, Pair(1, animationTargetStateTop)),
 
                 // next rep
-                Arguments.of(13, Pair(1, animationDown)),
-                Arguments.of(14, Pair(1, null)),
-                Arguments.of(19, Pair(1, animationUp)),
+                Arguments.of(13, Pair(1, animationTargetStateBottom)),
+                Arguments.of(14, Pair(1, animationTargetStateBottom)),
+                Arguments.of(19, Pair(1, animationTargetStateTop)),
             )
         }
 
@@ -81,30 +79,30 @@ class WorkoutInProgressCalculatorTest {
         private fun provideValuesForStartUp(): Stream<Arguments?>? {
             return Stream.of(
                 // up
-                Arguments.of(0, Pair(0, animationUp)),
-                Arguments.of(1, Pair(0, null)),
-                Arguments.of(2, Pair(0, null)),
-                Arguments.of(3, Pair(0, null)),
-                Arguments.of(4, Pair(0, null)),
-                Arguments.of(5, Pair(0, null)),
+                Arguments.of(0, Pair(0, animationTargetStateTop)),
+                Arguments.of(1, Pair(0, animationTargetStateTop)),
+                Arguments.of(2, Pair(0, animationTargetStateTop)),
+                Arguments.of(3, Pair(0, animationTargetStateTop)),
+                Arguments.of(4, Pair(0, animationTargetStateTop)),
+                Arguments.of(5, Pair(0, animationTargetStateTop)),
 
                 // upper hold
-                Arguments.of(6, Pair(0, null)),
+                Arguments.of(6, Pair(0, animationTargetStateTop)),
 
                 // down
-                Arguments.of(7, Pair(0, animationDown)),
-                Arguments.of(8, Pair(0, null)),
-                Arguments.of(9, Pair(0, null)),
-                Arguments.of(10, Pair(0, null)),
+                Arguments.of(7, Pair(0, animationTargetStateBottom)),
+                Arguments.of(8, Pair(0, animationTargetStateBottom)),
+                Arguments.of(9, Pair(0, animationTargetStateBottom)),
+                Arguments.of(10, Pair(0, animationTargetStateBottom)),
 
                 // lower hold
-                Arguments.of(11, Pair(0, null)),
-                Arguments.of(12, Pair(0, null)),
+                Arguments.of(11, Pair(1, animationTargetStateBottom)),
+                Arguments.of(12, Pair(1, animationTargetStateBottom)),
 
                 // next rep
-                Arguments.of(13, Pair(1, animationUp)),
-                Arguments.of(14, Pair(1, null)),
-                Arguments.of(20, Pair(1, animationDown)),
+                Arguments.of(13, Pair(1, animationTargetStateTop)),
+                Arguments.of(14, Pair(1, animationTargetStateTop)),
+                Arguments.of(20, Pair(1, animationTargetStateBottom)),
             )
         }
 
@@ -120,6 +118,9 @@ class WorkoutInProgressCalculatorTest {
         )
 
         private val exerciseStartUp = exerciseStartDown.copy(startWithUp =  true)
+
+        private val animationTargetStateTop = WorkoutAnimationTargetState.Top(exerciseStartDown.upMillis)
+        private val animationTargetStateBottom = WorkoutAnimationTargetState.Bottom(exerciseStartDown.downMillis)
     }
 }
 

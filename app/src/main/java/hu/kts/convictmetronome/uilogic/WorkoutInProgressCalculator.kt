@@ -8,25 +8,46 @@ import javax.inject.Inject
 
 class WorkoutInProgressCalculator @Inject constructor() {
 
-    fun getCounterAndAnimationTarget(exercise: Exercise, ticks: Int): Pair<Int, WorkoutAnimationTargetState?> {
+    fun getCounterAndAnimationTarget(exercise: Exercise, ticks: Int): Pair<Int, WorkoutAnimationTargetState> {
+        return if (exercise.startWithUp) {
+            getCounterAndAnimationTargetForStartWithUp(exercise, ticks)
+        } else {
+            getCounterAndAnimationTargetForStartWithDown(exercise, ticks)
+        }
+    }
+
+    private fun getCounterAndAnimationTargetForStartWithUp(exercise: Exercise, ticks: Int): Pair<Int, WorkoutAnimationTargetState>  {
         val repDuration = exercise.calcRepDuration()
-        val elapsedTimeSinceSetStart = ticks.ticksToMs()
+        // the first rep starts with up, but the others starts with lower hold,
+        // so we have to add a lower hold duration to the elapsedTimeSinceSetStart to keep
+        // the calculations accurate
+        val elapsedTimeSinceSetStart = ticks.ticksToMs() + exercise.lowerHoldMillis
         val counter = elapsedTimeSinceSetStart / repDuration
         val elapsedTimeFromCurrentRep = elapsedTimeSinceSetStart % repDuration
-        val sideEffect = if (exercise.startWithUp) {
-            when {
-                elapsedTimeFromCurrentRep == 0 -> WorkoutAnimationTargetState.Top(exercise.upMillis)
-                elapsedTimeFromCurrentRep - exercise.upMillis - exercise.upperHoldMillis == 0 -> WorkoutAnimationTargetState.Bottom(exercise.downMillis)
-                else -> null
-            }
-        } else {
-            when {
-                elapsedTimeFromCurrentRep == 0 -> WorkoutAnimationTargetState.Bottom(exercise.downMillis)
-                elapsedTimeFromCurrentRep - exercise.downMillis - exercise.lowerHoldMillis == 0 -> WorkoutAnimationTargetState.Top(exercise.upMillis)
-                else -> null
-            }
+        val topStateStart = exercise.lowerHoldMillis
+        val topStateEnd = exercise.lowerHoldMillis + exercise.upMillis + exercise.upperHoldMillis
+        val targetState = when (elapsedTimeFromCurrentRep) {
+            in topStateStart..<topStateEnd -> WorkoutAnimationTargetState.Top(exercise.upMillis)
+            else -> WorkoutAnimationTargetState.Bottom(exercise.downMillis)
         }
-        return Pair(counter, sideEffect)
+        return Pair(counter, targetState)
+    }
+
+    private fun getCounterAndAnimationTargetForStartWithDown(exercise: Exercise, ticks: Int): Pair<Int, WorkoutAnimationTargetState>  {
+        val repDuration = exercise.calcRepDuration()
+        // the first rep starts with down, but the others starts with upper hold,
+        // so we have to add an upper hold duration to the elapsedTimeSinceSetStart to keep
+        // the calculations accurate
+        val elapsedTimeSinceSetStart = ticks.ticksToMs() + exercise.upperHoldMillis
+        val counter = elapsedTimeSinceSetStart / repDuration
+        val elapsedTimeFromCurrentRep = elapsedTimeSinceSetStart % repDuration
+        val bottomStateStart = exercise.upperHoldMillis
+        val bottomStateEnd = exercise.lowerHoldMillis + exercise.downMillis + exercise.upperHoldMillis
+        val targetState = when (elapsedTimeFromCurrentRep) {
+            in bottomStateStart..<bottomStateEnd -> WorkoutAnimationTargetState.Bottom(exercise.downMillis)
+            else -> WorkoutAnimationTargetState.Top(exercise.upMillis)
+        }
+        return Pair(counter, targetState)
     }
 
     fun removeLatestRepFromTicks(exercise: Exercise, ticks: Int): Int {
