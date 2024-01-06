@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.persistency.Exercise
-import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
+import hu.kts.convictmetronome.ui.theme.CmTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -81,7 +81,7 @@ private fun DrawerContent(
 @Preview
 @Composable
 private fun PreviewDrawer() {
-    ConvictMetronomeTheme {
+    CmTheme {
         DrawerContent(
             exercises = listOf(
                 Exercise.default.copy(id = 0, name = "Push up"),

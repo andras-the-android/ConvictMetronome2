@@ -3,6 +3,7 @@ package hu.kts.convictmetronome.ui.main
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -17,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import hu.kts.convictmetronome.ui.exercise.ExerciseSheet
 import hu.kts.convictmetronome.ui.exercise.ExerciseSheetState
 import hu.kts.convictmetronome.ui.exercise.ExerciseViewModel
-import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
+import hu.kts.convictmetronome.ui.theme.CmTheme
 import hu.kts.convictmetronome.ui.workout.WorkoutScreen
 import hu.kts.convictmetronome.ui.workout.WorkoutScreenState
 import hu.kts.convictmetronome.ui.workout.WorkoutViewModel
@@ -28,8 +29,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        enableEdgeToEdge()
+
         setContent {
-            ConvictMetronomeTheme {
+            CmTheme {
                 val workoutViewModel: WorkoutViewModel = viewModel()
                 val workoutState: WorkoutScreenState by workoutViewModel.state.collectAsStateWithLifecycle()
                 val mainViewModel: MainViewModel = viewModel()

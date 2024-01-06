@@ -15,6 +15,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.kts.convictmetronome.R
-import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
+import hu.kts.convictmetronome.ui.theme.CmTheme
 import hu.kts.convictmetronome.workoutlogic.Workout.Companion.animationResetDuration
 
 private const val animationGradientThickness = 0.1f
@@ -65,6 +67,8 @@ fun WorkoutScreen(
         animationSpec = tween(state.animationTargetState.durationMillis, easing = LinearEasing),
         label = "shimmer"
     )
+
+    val animationColors = listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.secondary)
     Surface (
         modifier = Modifier
             .padding(16.dp)
@@ -73,10 +77,7 @@ fun WorkoutScreen(
                 val offset = animationProgress * (1 + animationGradientThickness)
 
                 val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White,
-                        Color(0xFF42A5F5)
-                    ),
+                    colors = animationColors,
                     startY = size.height * (offset - animationGradientThickness),
                     endY = size.height * offset
                 )
@@ -87,7 +88,9 @@ fun WorkoutScreen(
                     )
                 }
             },
-        color = Color.Transparent
+        color = Color.Transparent,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
+        shape = MaterialTheme.shapes.small
     ) {
         Column(
             modifier = Modifier
@@ -173,13 +176,13 @@ private val countdownTransitionSpec: AnimatedContentTransitionScope<String>.() -
 @Preview(showSystemUi = true)
 @Composable
 private fun PreviewWorkoutScreen() {
-    ConvictMetronomeTheme {
+    CmTheme {
         WorkoutScreen(
             state = WorkoutScreenState.Content(
                 repCounter = 5,
                 interSetClock = "00:00",
                 completedSets = 2,
-                animationTargetState = WorkoutAnimationTargetState.Top(0)
+                animationTargetState = WorkoutAnimationTargetState.Bottom(0)
             ),
             onClick = {},
             onLongClick = { false }

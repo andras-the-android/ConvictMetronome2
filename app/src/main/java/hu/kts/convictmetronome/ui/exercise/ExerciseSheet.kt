@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import hu.kts.convictmetronome.R
-import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
+import hu.kts.convictmetronome.ui.theme.CmTheme
 import hu.kts.convictmetronome.ui.toAnnotatedString
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -125,7 +125,7 @@ fun PreviewExerciseItem() {
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewExerciseSheet() {
-    ConvictMetronomeTheme {
+    CmTheme {
         val state = ExerciseSheetState.Showing(
             id = 0,
             name = "Sample",

@@ -1,5 +1,6 @@
 package hu.kts.convictmetronome.ui.main
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -18,16 +19,23 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.core.Sounds
+import hu.kts.convictmetronome.ui.theme.CmTheme
+import hu.kts.convictmetronome.ui.workout.WorkoutAnimationTargetState
+import hu.kts.convictmetronome.ui.workout.WorkoutScreen
+import hu.kts.convictmetronome.ui.workout.WorkoutScreenState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +67,8 @@ fun MainScreen(
                         actionCallbacks = appBarActionCallbacks,
                         onEditExerciseClicked = onEditExerciseClicked
                     )
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
 
             )
         },
@@ -89,7 +98,11 @@ private fun OptionsMenu(
     onEditExerciseClicked: () -> Unit,
 ) {
     IconButton(onClick = actionCallbacks::onOptionsActionClicked) {
-        Icon(Icons.Outlined.MoreVert, stringResource(id = R.string.app_bar_options_menu))
+        Icon(
+            imageVector = Icons.Outlined.MoreVert,
+            contentDescription = stringResource(id = R.string.app_bar_options_menu),
+            tint = MaterialTheme.colorScheme.secondary,
+        )
     }
 
     DropdownMenu(
@@ -129,7 +142,7 @@ private fun VolumePopup(
         transitionSpec = { scaleIn() togetherWith scaleOut() },
     ) {
         IconButton(onClick = actionCallbacks::onVolumeActionClicked) {
-            Icon(it, stringResource(id = R.string.app_bar_volume))
+            Icon(it, stringResource(id = R.string.app_bar_volume), tint = MaterialTheme.colorScheme.secondary)
         }
     }
 
@@ -145,5 +158,51 @@ private fun VolumePopup(
             valueRange = 0f..Sounds.maxVolume,
             steps = 4
         )
+    }
+}
+
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL,
+    showSystemUi = true
+)
+@Preview(
+    showSystemUi = true
+)
+@Composable
+fun PreviewMainScreen() {
+    CmTheme {
+        MainScreen(
+            openDrawer = {},
+            state = MainScreenState.Content(
+                title = "Push up",
+                exercises = emptyList(),
+                selectedExerciseId = 0,
+                optionsMenuExpanded = false,
+                showConfirmDeleteExerciseDialog = false,
+                volumePopupExpanded = false,
+                volume = 1f
+            ),
+            appBarActionCallbacks = object : AppBarActionCallbacks {
+                override fun onOptionsActionClicked() {}
+                override fun dismissOptionsMenu() {}
+                override fun onDeleteExerciseClicked() {}
+                override fun onConfirmDeleteExercise() {}
+                override fun dismissConfirmDeleteExerciseDialog() {}
+                override fun onVolumeActionClicked() {}
+                override fun dismissVolumePopup() {}
+                override fun onVolumeChange(value: Float) {}            },
+            onEditExerciseClicked = {})
+        {
+            WorkoutScreen(
+                state = WorkoutScreenState.Content(
+                    repCounter = 5,
+                    interSetClock = "00:00",
+                    completedSets = 2,
+                    animationTargetState = WorkoutAnimationTargetState.Bottom(0)
+                ),
+                onClick = {},
+                onLongClick = { false }
+            )
+        }
     }
 }
