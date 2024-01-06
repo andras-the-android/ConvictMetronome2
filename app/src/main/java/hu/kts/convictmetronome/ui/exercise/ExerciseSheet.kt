@@ -1,23 +1,28 @@
 package hu.kts.convictmetronome.ui.exercise
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,46 +39,60 @@ fun ExerciseSheet(
     state: ExerciseSheetState.Showing,
     callbacks: ExerciseSheetCallbacks
 ) {
-    ModalBottomSheet(onDismissRequest = onDismissRequest) {
-        TextField(value = state.name, onValueChange = { callbacks.onNameChange(it) })
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.name,
+                onValueChange = { callbacks.onNameChange(it) },
+                label = { Text(stringResource(id = R.string.generic_name)) }
+            )
 
-        ExerciseItem(
-            titleResId = R.string.exercise_countdown_from,
-            value = state.countdownFromSeconds,
-            position = state.countdownFromPosition
-        ) { callbacks.onCountdownFromChange(it) }
+            ExerciseItem(
+                titleResId = R.string.exercise_countdown_from,
+                value = state.countdownFromSeconds,
+                position = state.countdownFromPosition
+            ) { callbacks.onCountdownFromChange(it) }
 
-        Row {
-            Text(text = stringResource(id = R.string.exercise_start_with_up))
-            Checkbox(checked = state.startWithUp, onCheckedChange = { callbacks.onStartWithUpChange(it) })
-        }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = stringResource(id = R.string.exercise_start_with_up), color = MaterialTheme.colorScheme.outline)
+                Checkbox(checked = state.startWithUp, onCheckedChange = { callbacks.onStartWithUpChange(it) })
+            }
 
-        ExerciseItem(
-            titleResId = R.string.exercise_down_duration,
-            value = state.downSeconds,
-            position = state.downPosition
-        ) { callbacks.onDownChange(it) }
+            ExerciseItem(
+                titleResId = R.string.exercise_down_duration,
+                value = state.downSeconds,
+                position = state.downPosition
+            ) { callbacks.onDownChange(it) }
 
-        ExerciseItem(
-            titleResId = R.string.exercise_lower_hold_duration,
-            value = state.lowerHoldSeconds,
-            position = state.lowerHoldPosition
-        ) { callbacks.onLowerHoldChange(it) }
+            ExerciseItem(
+                titleResId = R.string.exercise_lower_hold_duration,
+                value = state.lowerHoldSeconds,
+                position = state.lowerHoldPosition
+            ) { callbacks.onLowerHoldChange(it) }
 
-        ExerciseItem(
-            titleResId = R.string.exercise_up_duration,
-            value = state.upSeconds,
-            position = state.upPosition
-        ) { callbacks.onUpChange(it) }
+            ExerciseItem(
+                titleResId = R.string.exercise_up_duration,
+                value = state.upSeconds,
+                position = state.upPosition
+            ) { callbacks.onUpChange(it) }
 
-        ExerciseItem(
-            titleResId = R.string.exercise_upper_hold_duration,
-            value = state.upperHoldSeconds,
-            position = state.upperHoldPosition
-        ) { callbacks.onUpperHoldChange(it) }
+            ExerciseItem(
+                titleResId = R.string.exercise_upper_hold_duration,
+                value = state.upperHoldSeconds,
+                position = state.upperHoldPosition
+            ) { callbacks.onUpperHoldChange(it) }
 
-        OutlinedButton(onClick = { callbacks.onSaveClicked()}) {
-            Text(text = stringResource(id = R.string.generic_save))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Button(onClick = { callbacks.onSaveClicked() }) {
+                    Text(text = stringResource(id = R.string.generic_save))
+                }
+            }
         }
     }
 }
@@ -85,19 +104,22 @@ private fun ExerciseItem(
     position: Int,
     onValueChange: (Int) -> Unit
 ) {
-    Column {
+    Column(
+        Modifier.padding(top = 12.dp)
+    ) {
         val title = HtmlCompat
             .fromHtml(
                 stringResource(id = titleResId, value),
                 HtmlCompat.FROM_HTML_MODE_COMPACT,
             )
             .toAnnotatedString()
-        Text(text = title)
+        Text(text = title, color = MaterialTheme.colorScheme.outline)
         Slider(
             value = position.toFloat(),
             onValueChange = { onValueChange(it.toInt()) },
             valueRange = 0f..steps - 1f,
-            steps = steps
+            steps = steps,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
         )
     }
 }

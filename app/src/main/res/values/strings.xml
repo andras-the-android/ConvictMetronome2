@@ -23,6 +23,7 @@
     <string name="rep_is_empty_message">Rep length is 0. Set up values in Settings!</string>
 
     <string name="generic_save">Save</string>
+    <string name="generic_name">Name</string>
     <string name="generic_ok">OK</string>
     <string name="generic_cancel">Cancel</string>
     <string name="generic_are_you_sure">Are you sure?</string>
