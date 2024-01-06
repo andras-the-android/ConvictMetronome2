@@ -1,8 +1,11 @@
 package hu.kts.convictmetronome.ui.main
 
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -10,8 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.persistency.Exercise
 import hu.kts.convictmetronome.ui.theme.CmTheme
@@ -52,6 +58,14 @@ private fun DrawerContent(
     coroutineScope: CoroutineScope,
 ) {
     ModalDrawerSheet {
+        Text(
+            text = stringResource(id = R.string.app_name),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 16.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Divider()
         exercises.forEach { exercise ->
             NavigationDrawerItem(
                 label = { Text(text = exercise.name) },
@@ -61,7 +75,8 @@ private fun DrawerContent(
                         drawerState.close()
                         onExerciseClick(exercise.id)
                     }
-                }
+                },
+                modifier = Modifier.padding(8.dp)
             )
         }
         Divider()
@@ -73,12 +88,13 @@ private fun DrawerContent(
                     drawerState.close()
                     onCreateNewClick()
                 }
-            }
+            },
+            modifier = Modifier.padding(8.dp)
         )
     }
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)
 @Composable
 private fun PreviewDrawer() {
     CmTheme {
