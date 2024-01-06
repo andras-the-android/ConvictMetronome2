@@ -7,9 +7,7 @@ import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class TickProvider @Inject constructor(
     private val coroutineScope: CoroutineScope
 ) {

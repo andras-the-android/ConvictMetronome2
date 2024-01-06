@@ -1,4 +1,4 @@
-package hu.kts.convictmetronome.uilogic
+package hu.kts.convictmetronome.workoutlogic
 
 import hu.kts.convictmetronome.core.ticksToMs
 import hu.kts.convictmetronome.persistency.Exercise

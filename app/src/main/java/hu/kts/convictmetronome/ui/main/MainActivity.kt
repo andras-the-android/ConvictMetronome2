@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val coroutineScope = rememberCoroutineScope()
 
-                AnimatedVisibility(visible = mainState is MainScreenState.Content) {
+                AnimatedVisibility(visible = mainState is MainScreenState.Content && workoutState is WorkoutScreenState.Content) {
 
                     val mainContent = mainState as MainScreenState.Content
                     CmDrawer(

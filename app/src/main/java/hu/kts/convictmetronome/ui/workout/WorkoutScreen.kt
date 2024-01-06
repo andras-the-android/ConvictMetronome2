@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.ui.theme.ConvictMetronomeTheme
-import hu.kts.convictmetronome.ui.workout.WorkoutViewModel.Companion.animationResetDuration
+import hu.kts.convictmetronome.workoutlogic.Workout.Companion.animationResetDuration
 
 private const val animationGradientThickness = 0.1f
 
