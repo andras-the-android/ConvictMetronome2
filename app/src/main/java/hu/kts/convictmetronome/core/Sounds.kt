@@ -39,9 +39,11 @@ class Sounds @Inject constructor(
     }
 
     fun beep() {
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
+        if (preferences.volumeStep > 0) {
+            toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
+            toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
+            toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
+        }
     }
 
     private fun generateUpDownSounds() {
