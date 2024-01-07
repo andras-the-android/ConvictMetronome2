@@ -98,15 +98,22 @@ fun WorkoutScreen(
     ) {
         Column(
             modifier = Modifier
+                .padding(8.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Text(
+                text = stringResource(id = state.helpTextResourceId),
+                textAlign = TextAlign.Center,
+            )
             RepCounterAnimation(
                 counterText = state.repCounter.toString(),
                 countdownInProgress = state.countdownInProgress,
             ) { counterText ->
-                Text(text = counterText,
+                Text(
+                    text = counterText,
+                    style = MaterialTheme.typography.displayLarge,
                     fontSize = 128.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -124,6 +131,7 @@ fun WorkoutScreen(
             }
             Text(
                 text = state.interSetClock,
+                style = MaterialTheme.typography.displaySmall,
                 fontSize = 40.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -186,7 +194,8 @@ private fun PreviewWorkoutScreen() {
                 repCounter = 5,
                 interSetClock = "00:00",
                 completedSets = 2,
-                animationTargetState = WorkoutAnimationTargetState.Bottom(0)
+                animationTargetState = WorkoutAnimationTargetState.Bottom(0),
+                helpTextResourceId = R.string.help_initial
             ),
             onClick = {},
             onLongClick = { false }

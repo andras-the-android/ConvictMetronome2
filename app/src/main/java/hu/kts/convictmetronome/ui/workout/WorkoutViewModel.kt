@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.repository.WorkoutRepository
 import hu.kts.convictmetronome.ui.workout.WorkoutPhase.BetweenSets
 import hu.kts.convictmetronome.ui.workout.WorkoutPhase.Countdown
@@ -45,6 +46,7 @@ class WorkoutViewModel @Inject constructor(
                 interSetClock = interSetClock,
                 completedSets = workoutState.completedSets,
                 countdownInProgress = workoutState.phase is Countdown,
+                helpTextResourceId = workoutState.phase.helpTextId()
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), WorkoutScreenState.Loading)
@@ -65,6 +67,16 @@ class WorkoutViewModel @Inject constructor(
             }
         }
         return true
+    }
+
+    private fun WorkoutPhase.helpTextId(): Int {
+        return when (this) {
+            is BetweenSets -> R.string.help_between_sets
+            is WorkoutPhase.InProgress -> R.string.help_in_progress
+            WorkoutPhase.Initial -> R.string.help_initial
+            is WorkoutPhase.Paused -> R.string.help_paused
+            else -> R.string.empty_string
+        }
     }
 
     private suspend fun getWorkout() = workoutRepository.activeWorkout.first()
