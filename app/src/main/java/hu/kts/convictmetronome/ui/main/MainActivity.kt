@@ -6,11 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -60,7 +62,7 @@ class MainActivity : ComponentActivity() {
                             appBarActionCallbacks = mainViewModel,
                             onEditExerciseClicked = exerciseViewModel::editSelectedExercise,
                         ) {
-                            Box(Modifier.padding(it)) {
+                            Box(Modifier.padding(it).fillMaxSize(), contentAlignment = Alignment.Center) {
                                 WorkoutScreen(
                                     state = workoutState as WorkoutScreenState.Content,
                                     onClick = workoutViewModel::onCounterClick,

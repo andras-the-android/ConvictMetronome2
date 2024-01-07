@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.MoreVert
@@ -152,9 +153,9 @@ private fun VolumePopup(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = actionCallbacks::dismissVolumePopup,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
             Text(
                 text = stringResource(id = R.string.app_bar_volume_explanation),
                 color = MaterialTheme.colorScheme.outline,
