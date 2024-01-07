@@ -14,6 +14,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +48,8 @@ fun CmDrawer(
         content = content,
     )
 }
+
+private const val privacyPolicyUrl = "https://github.com/andras-the-android/ConvictMetronome2/blob/main/privacy_policy.md"
 
 @Composable
 private fun DrawerContent(
@@ -89,6 +92,14 @@ private fun DrawerContent(
                     onCreateNewClick()
                 }
             },
+            modifier = Modifier.padding(8.dp)
+        )
+        Divider()
+        val uriHandler = LocalUriHandler.current
+        NavigationDrawerItem(
+            label = { Text(text = stringResource(id = R.string.privacy_policy)) },
+            selected = false,
+            onClick = { uriHandler.openUri(privacyPolicyUrl) },
             modifier = Modifier.padding(8.dp)
         )
     }
