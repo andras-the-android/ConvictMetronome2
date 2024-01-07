@@ -26,7 +26,7 @@ class WorkoutRepository @Inject constructor(
     ) { selectedExercise, _ ->
         Log.v(tagWorkout, "WorkoutRepository state triggered")
         workoutFactory.create(selectedExercise)
-    }.shareIn(coroutineScope, SharingStarted.WhileSubscribed(5000), 1)
+    }.shareIn(coroutineScope, SharingStarted.Lazily, 1)
 
     init {
         // we have to send one event to make combine work
