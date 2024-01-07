@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.pow
 
 
 class Sounds @Inject constructor(
@@ -55,7 +56,7 @@ class Sounds @Inject constructor(
         tryStop()
         coroutineScope.launch {
             audioTrack.run {
-                setVolume(preferences.volume)
+                setVolume(preferences.volumeStep.toRealVolume())
                 if (playState != AudioTrack.PLAYSTATE_PLAYING) {
                     play()
                 }
@@ -75,8 +76,20 @@ class Sounds @Inject constructor(
         }
     }
 
+    private fun Int.toRealVolume(): Float {
+        if (this == 0) return 0f
+
+        return baseVolume * volumeStepMultiplier.pow(this - 1)
+    }
+
     companion object {
-        val maxVolume = AudioTrack.getMaxVolume()
+        const val volumeSteps = 10
+        const val maxVolume = volumeSteps - 1f
+        // every volume step is volumeStepMultiplier times louder than the previous one
+        private const val volumeStepMultiplier = 1.8f
+        // given that the max volume is 1.0, the base volume is about 0.09
+        // we need to subtract 2 because the zeroth step is silence and the steps are indexed from 0
+        private val baseVolume = AudioTrack.getMaxVolume() / volumeStepMultiplier.pow(volumeSteps - 2)
     }
 
 }

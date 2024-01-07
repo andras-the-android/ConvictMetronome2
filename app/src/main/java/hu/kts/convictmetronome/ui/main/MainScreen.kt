@@ -162,8 +162,8 @@ private fun VolumePopup(
             Slider(
                 value = value,
                 onValueChange = actionCallbacks::onVolumeChange,
-                valueRange = 0f..Sounds.maxVolume,
-                steps = 4,
+                valueRange = 0f..Sounds.volumeSteps - 1f,
+                steps = Sounds.volumeSteps - 2,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             )
         }

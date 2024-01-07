@@ -19,7 +19,7 @@ class MainViewModel @Inject constructor(
     private val preferences: Preferences,
 ): ViewModel(), AppBarActionCallbacks {
 
-    private val actionState = MutableStateFlow(AppBarActionState(volume = preferences.volume))
+    private val actionState = MutableStateFlow(AppBarActionState(volume = preferences.volumeStep.toFloat()))
 
     val state = combine(
         exerciseRepository.allExercises,
@@ -76,7 +76,7 @@ class MainViewModel @Inject constructor(
     }
 
     override fun onVolumeChange(value: Float) {
-        preferences.volume = value
+        preferences.volumeStep = value.toInt()
         actionState.update { it.copy(volume = value) }
     }
 

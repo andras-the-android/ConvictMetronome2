@@ -16,11 +16,11 @@ class Preferences @Inject constructor(
             }.apply()
         }
 
-    var volume: Float
-        get() = sharedPreferences.getFloat(keyVolume, Sounds.maxVolume)
+    var volumeStep: Int
+        get() = sharedPreferences.getInt(keyVolume, Sounds.volumeSteps - 1)
         set(value) {
             sharedPreferences.edit().apply {
-                putFloat(keyVolume, value)
+                putInt(keyVolume, value)
             }.apply()
         }
 
