@@ -141,7 +141,7 @@ fun WorkoutScreen(
                 )
             }
             Row {
-                Text(text = stringResource(id = R.string.set_counter_label))
+                Text(text = stringResource(id = R.string.workout_sets_completed))
                 Text(text = state.completedSets.toString())
             }
         }

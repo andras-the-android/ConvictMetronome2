@@ -112,7 +112,7 @@ private fun DrawerContent(
         Divider(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
         val uriHandler = LocalUriHandler.current
         NavigationDrawerItem(
-            label = { Text(text = stringResource(id = R.string.privacy_policy), fontWeight = FontWeight.SemiBold) },
+            label = { Text(text = stringResource(id = R.string.drawer_privacy_policy), fontWeight = FontWeight.SemiBold) },
             selected = false,
             onClick = { uriHandler.openUri(privacyPolicyUrl) },
             modifier = Modifier.padding(start = 8.dp, end = 8.dp)
