@@ -54,6 +54,7 @@ private const val animationGradientThickness = 0.1f
 @Composable
 fun WorkoutScreen(
     state: WorkoutScreenState.Content,
+    compactMode: Boolean = false,
     onClick: () -> Unit,
     onLongClick: () -> Boolean
 ) {
@@ -103,16 +104,18 @@ fun WorkoutScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = stringResource(id = state.helpTextResourceId),
-                textAlign = TextAlign.Center,
-            )
+            if (!compactMode) {
+                Text(
+                    text = stringResource(id = state.helpTextResourceId),
+                    textAlign = TextAlign.Center,
+                )
+            }
             RepCounterAnimation(
                 counterText = state.repCounter.toString(),
                 countdownInProgress = state.countdownInProgress,
             ) { counterText ->
                 Text(
-                    text = counterText,
+                    text = if (compactMode && state.interSetClock.isNotEmpty()) state.interSetClock else counterText,
                     style = MaterialTheme.typography.displayLarge,
                     fontSize = 128.sp,
                     textAlign = TextAlign.Center,
@@ -125,17 +128,18 @@ fun WorkoutScreen(
                                 }
                             },
                         )
-                        .padding(8.dp)
                         .fillMaxWidth()
                 )
             }
-            Text(
-                text = state.interSetClock,
-                style = MaterialTheme.typography.displaySmall,
-                fontSize = 40.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-            )
+            if (!compactMode) {
+                Text(
+                    text = state.interSetClock,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontSize = 40.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                )
+            }
             Row {
                 Text(text = stringResource(id = R.string.set_counter_label))
                 Text(text = state.completedSets.toString())
@@ -197,6 +201,25 @@ private fun PreviewWorkoutScreen() {
                 animationTargetState = WorkoutAnimationTargetState.Bottom(0),
                 helpTextResourceId = R.string.help_initial
             ),
+            onClick = {},
+            onLongClick = { false }
+        )
+    }
+}
+
+@Preview(showSystemUi = true, device = "spec:parent=pixel_5,orientation=landscape")
+@Composable
+private fun PreviewCompactWorkoutScreen() {
+    CmTheme {
+        WorkoutScreen(
+            state = WorkoutScreenState.Content(
+                repCounter = 5,
+                interSetClock = "00:00",
+                completedSets = 2,
+                animationTargetState = WorkoutAnimationTargetState.Bottom(0),
+                helpTextResourceId = R.string.help_initial
+            ),
+            compactMode = true,
             onClick = {},
             onLongClick = { false }
         )

@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -28,12 +31,18 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
 
         setContent {
+
+            val windowSizeClass = calculateWindowSizeClass(this)
+            val compactMode = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+
+
             CmTheme {
                 val workoutViewModel: WorkoutViewModel = viewModel()
                 val workoutState: WorkoutScreenState by workoutViewModel.state.collectAsStateWithLifecycle()
@@ -65,6 +74,7 @@ class MainActivity : ComponentActivity() {
                             Box(Modifier.padding(it).fillMaxSize(), contentAlignment = Alignment.Center) {
                                 WorkoutScreen(
                                     state = workoutState as WorkoutScreenState.Content,
+                                    compactMode = compactMode,
                                     onClick = workoutViewModel::onCounterClick,
                                     onLongClick = workoutViewModel::onCounterLongClick,
                                 )
