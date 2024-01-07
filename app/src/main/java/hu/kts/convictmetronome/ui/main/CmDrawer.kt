@@ -86,7 +86,7 @@ private fun DrawerContent(
         Divider(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
         exercises.forEach { exercise ->
             NavigationDrawerItem(
-                label = { Text(text = exercise.name) },
+                label = { Text(text = exercise.name, fontWeight = FontWeight.SemiBold) },
                 selected = selectedExerciseId == exercise.id,
                 onClick = {
                     coroutineScope.launch {
@@ -94,12 +94,12 @@ private fun DrawerContent(
                         onExerciseClick(exercise.id)
                     }
                 },
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
             )
         }
-        Divider()
+        Divider(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
         NavigationDrawerItem(
-            label = { Text(text = stringResource(id = R.string.drawer_create_new)) },
+            label = { Text(text = stringResource(id = R.string.drawer_create_new), fontWeight = FontWeight.SemiBold) },
             selected = false,
             onClick = {
                 coroutineScope.launch {
@@ -107,15 +107,15 @@ private fun DrawerContent(
                     onCreateNewClick()
                 }
             },
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp)
         )
-        Divider()
+        Divider(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
         val uriHandler = LocalUriHandler.current
         NavigationDrawerItem(
-            label = { Text(text = stringResource(id = R.string.privacy_policy)) },
+            label = { Text(text = stringResource(id = R.string.privacy_policy), fontWeight = FontWeight.SemiBold) },
             selected = false,
             onClick = { uriHandler.openUri(privacyPolicyUrl) },
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp)
         )
     }
 }

@@ -41,6 +41,6 @@
     <string name="app_bar_volume">Volume</string>
     <string name="app_bar_volume_explanation">Volume relative to the system volume</string>
 
-    <string name="drawer_create_new">Create new</string>
+    <string name="drawer_create_new">Create new exercise</string>
     <string name="drawer_open">Open drawer</string>
 </resources>
