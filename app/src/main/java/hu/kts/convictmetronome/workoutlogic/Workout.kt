@@ -130,6 +130,12 @@ class Workout(
 
             is WorkoutPhase.InProgress -> {
                 val (repCounter, newAnimationTargetState) = workoutInProgressCalculator.getCounterAndAnimationTarget(exercise, localPhase.ticks)
+                if (_state.value.animationTargetState != newAnimationTargetState) {
+                    when (newAnimationTargetState) {
+                        is WorkoutAnimationTargetState.Bottom -> sounds.makeDownSound()
+                        is WorkoutAnimationTargetState.Top -> sounds.makeUpSound()
+                    }
+                }
                 _state.update {
                     it.copy(
                         repCounter = repCounter,
