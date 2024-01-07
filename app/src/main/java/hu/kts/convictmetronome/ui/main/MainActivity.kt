@@ -1,6 +1,7 @@
 package hu.kts.convictmetronome.ui.main
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -57,6 +58,8 @@ class MainActivity : ComponentActivity() {
                 AnimatedVisibility(visible = mainState is MainScreenState.Content && workoutState is WorkoutScreenState.Content) {
 
                     val mainContent = mainState as MainScreenState.Content
+                    val workoutContent = workoutState as WorkoutScreenState.Content
+                    keepScreenAwake(workoutContent.keepScreenAlive)
                     CmDrawer(
                         exercises = mainContent.exercises,
                         selectedExerciseId = mainContent.selectedExerciseId,
@@ -73,7 +76,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             Box(Modifier.padding(it).fillMaxSize(), contentAlignment = Alignment.Center) {
                                 WorkoutScreen(
-                                    state = workoutState as WorkoutScreenState.Content,
+                                    state = workoutContent,
                                     compactMode = compactMode,
                                     onClick = workoutViewModel::onCounterClick,
                                     onLongClick = workoutViewModel::onCounterLongClick,
@@ -92,6 +95,14 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun keepScreenAwake(keep: Boolean) {
+        if (keep) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
 }

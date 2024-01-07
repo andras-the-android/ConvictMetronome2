@@ -46,7 +46,8 @@ class WorkoutViewModel @Inject constructor(
                 interSetClock = interSetClock,
                 completedSets = workoutState.completedSets,
                 countdownInProgress = workoutState.phase is Countdown,
-                helpTextResourceId = workoutState.phase.helpTextId()
+                helpTextResourceId = workoutState.phase.helpTextId(),
+                keepScreenAlive = workoutState.phase.shouldKeepScreenAlive()
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), WorkoutScreenState.Loading)
@@ -77,6 +78,10 @@ class WorkoutViewModel @Inject constructor(
             is WorkoutPhase.Paused -> R.string.help_paused
             else -> R.string.empty_string
         }
+    }
+
+    private fun WorkoutPhase.shouldKeepScreenAlive(): Boolean {
+        return this is WorkoutPhase.InProgress || this is Countdown || this is BetweenSets
     }
 
     private suspend fun getWorkout() = workoutRepository.activeWorkout.first()
