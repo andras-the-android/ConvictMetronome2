@@ -78,8 +78,7 @@ class MainActivity : ComponentActivity() {
                                 WorkoutScreen(
                                     state = workoutContent,
                                     compactMode = compactMode,
-                                    onClick = workoutViewModel::onCounterClick,
-                                    onLongClick = workoutViewModel::onCounterLongClick,
+                                    callbacks = workoutViewModel,
                                 )
 
                                 if (exerciseState is ExerciseSheetState.Showing) {

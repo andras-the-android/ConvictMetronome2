@@ -55,8 +55,7 @@ private const val animationGradientThickness = 0.1f
 fun WorkoutScreen(
     state: WorkoutScreenState.Content,
     compactMode: Boolean = false,
-    onClick: () -> Unit,
-    onLongClick: () -> Boolean
+    callbacks: WorkoutActionCallbacks,
 ) {
     val haptic = LocalHapticFeedback.current
 
@@ -122,12 +121,8 @@ fun WorkoutScreen(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .combinedClickable(
-                            onClick = onClick,
-                            onLongClick = {
-                                if (onLongClick()) {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                }
-                            },
+                            onClick = { callbacks.onClick() },
+                            onLongClick = { callbacks.onLongClick { haptic.performHapticFeedback(HapticFeedbackType.LongPress) } },
                         )
                         .fillMaxWidth()
                 )
@@ -202,8 +197,10 @@ private fun PreviewWorkoutScreen() {
                 animationTargetState = WorkoutAnimationTargetState.Bottom(0),
                 helpTextResourceId = R.string.help_initial
             ),
-            onClick = {},
-            onLongClick = { false }
+            callbacks = object : WorkoutActionCallbacks {
+                override fun onClick() {}
+                override fun onLongClick(eventConsumed: () -> Unit) {}
+            }
         )
     }
 }
@@ -221,8 +218,10 @@ private fun PreviewCompactWorkoutScreen() {
                 helpTextResourceId = R.string.help_initial
             ),
             compactMode = true,
-            onClick = {},
-            onLongClick = { false }
+            callbacks = object : WorkoutActionCallbacks {
+                override fun onClick() {}
+                override fun onLongClick(eventConsumed: () -> Unit) {}
+            }
         )
     }
 }

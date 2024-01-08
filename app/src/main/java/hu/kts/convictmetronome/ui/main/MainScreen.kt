@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import hu.kts.convictmetronome.R
 import hu.kts.convictmetronome.core.Sounds
 import hu.kts.convictmetronome.ui.theme.CmTheme
+import hu.kts.convictmetronome.ui.workout.WorkoutActionCallbacks
 import hu.kts.convictmetronome.ui.workout.WorkoutAnimationTargetState
 import hu.kts.convictmetronome.ui.workout.WorkoutScreen
 import hu.kts.convictmetronome.ui.workout.WorkoutScreenState
@@ -213,8 +214,10 @@ fun PreviewMainScreen() {
                     completedSets = 2,
                     animationTargetState = WorkoutAnimationTargetState.Bottom(0)
                 ),
-                onClick = {},
-                onLongClick = { false }
+                callbacks = object : WorkoutActionCallbacks {
+                    override fun onClick() {}
+                    override fun onLongClick(eventConsumed: () -> Unit) {}
+                }
             )
         }
     }

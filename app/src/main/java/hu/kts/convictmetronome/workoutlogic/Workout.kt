@@ -87,11 +87,13 @@ class Workout(
             is WorkoutPhase.InProgress-> {
                 sounds.stop()
                 phase = WorkoutPhase.BetweenSets()
+                return true
             }
 
             is WorkoutPhase.Paused -> {
                 phase = WorkoutPhase.BetweenSets()
                 tickProvider.start()
+                return true
             }
 
             is WorkoutPhase.BetweenSets -> {

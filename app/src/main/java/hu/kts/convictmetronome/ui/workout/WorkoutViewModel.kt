@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WorkoutViewModel @Inject constructor(
     private val workoutRepository: WorkoutRepository,
-): ViewModel() {
+): ViewModel(), WorkoutActionCallbacks {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val state = workoutRepository
@@ -52,22 +52,22 @@ class WorkoutViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), WorkoutScreenState.Loading)
 
-    fun onCounterClick() {
+    override fun onClick() {
         viewModelScope.launch {
             getWorkout().onCounterClick()
         }
     }
 
-    fun onCounterLongClick(): Boolean {
+    override fun onLongClick(eventConsumed: () -> Unit) {
         viewModelScope.launch {
             val workout = getWorkout()
             if (workout.phase is BetweenSets) {
                 workoutRepository.resetWorkout()
+                eventConsumed()
             } else {
-                workout.onCounterLongClick()
+                if (workout.onCounterLongClick()) { eventConsumed() }
             }
         }
-        return true
     }
 
     private fun WorkoutPhase.helpTextId(): Int {
