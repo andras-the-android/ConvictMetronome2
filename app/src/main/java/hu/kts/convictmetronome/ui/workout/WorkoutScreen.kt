@@ -108,6 +108,7 @@ fun WorkoutScreen(
                 Text(
                     text = stringResource(id = state.helpTextResourceId),
                     textAlign = TextAlign.Center,
+                    minLines = 2
                 )
             }
             RepCounterAnimation(
