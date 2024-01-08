@@ -12,6 +12,7 @@ sealed interface WorkoutScreenState {
         val completedSets: Int = 0,
         val countdownInProgress: Boolean = false,
         @StringRes val helpTextResourceId: Int = R.string.empty_string,
-        val keepScreenAlive: Boolean = false
+        val keepScreenAlive: Boolean = false,
+        val showConfirmResetWorkoutDialog: Boolean = false,
     ): WorkoutScreenState
 }

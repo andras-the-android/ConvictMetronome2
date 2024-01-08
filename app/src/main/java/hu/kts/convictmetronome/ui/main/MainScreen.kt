@@ -217,6 +217,8 @@ fun PreviewMainScreen() {
                 callbacks = object : WorkoutActionCallbacks {
                     override fun onClick() {}
                     override fun onLongClick(eventConsumed: () -> Unit) {}
+                    override fun confirmReset() {}
+                    override fun dismissConfirmResetDialog() {}
                 }
             )
         }

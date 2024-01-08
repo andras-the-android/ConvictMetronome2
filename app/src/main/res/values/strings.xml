@@ -8,6 +8,7 @@
     <string name="empty_string" translatable="false"/>
 
     <string name="workout_sets_completed">Sets completed: </string>
+    <string name="workout_confirm_reset">Reset workout</string>
 
     <string name="generic_save">Save</string>
     <string name="generic_name">Name</string>

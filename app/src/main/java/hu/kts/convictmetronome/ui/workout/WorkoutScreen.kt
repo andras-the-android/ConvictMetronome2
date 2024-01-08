@@ -26,9 +26,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -122,7 +124,13 @@ fun WorkoutScreen(
                     modifier = Modifier
                         .combinedClickable(
                             onClick = { callbacks.onClick() },
-                            onLongClick = { callbacks.onLongClick { haptic.performHapticFeedback(HapticFeedbackType.LongPress) } },
+                            onLongClick = {
+                                callbacks.onLongClick {
+                                    haptic.performHapticFeedback(
+                                        HapticFeedbackType.LongPress
+                                    )
+                                }
+                            },
                         )
                         .fillMaxWidth()
                 )
@@ -141,6 +149,20 @@ fun WorkoutScreen(
                 Text(text = state.completedSets.toString())
             }
         }
+    }
+
+    if (state.showConfirmResetWorkoutDialog) {
+        AlertDialog(
+            onDismissRequest = { callbacks.dismissConfirmResetDialog() },
+            confirmButton = { TextButton(onClick = { callbacks.confirmReset() }) {
+                Text(stringResource(id = R.string.generic_ok))
+            } },
+            dismissButton = { TextButton(onClick = { callbacks.dismissConfirmResetDialog() }) {
+                Text(stringResource(id = R.string.generic_cancel))
+            } },
+            title = { Text(stringResource(id = R.string.workout_confirm_reset)) },
+            text = { Text(stringResource(id = R.string.generic_are_you_sure)) }
+        )
     }
 }
 
@@ -200,6 +222,8 @@ private fun PreviewWorkoutScreen() {
             callbacks = object : WorkoutActionCallbacks {
                 override fun onClick() {}
                 override fun onLongClick(eventConsumed: () -> Unit) {}
+                override fun confirmReset() {}
+                override fun dismissConfirmResetDialog() {}
             }
         )
     }
@@ -221,6 +245,8 @@ private fun PreviewCompactWorkoutScreen() {
             callbacks = object : WorkoutActionCallbacks {
                 override fun onClick() {}
                 override fun onLongClick(eventConsumed: () -> Unit) {}
+                override fun confirmReset() {}
+                override fun dismissConfirmResetDialog() {}
             }
         )
     }
