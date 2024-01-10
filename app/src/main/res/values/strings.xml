@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">Convict Metronome</string>
+
+    <string name="help_initial">Tap the counter to start a workout</string>
+    <string name="help_in_progress">Tap the counter to pause\n\nTap and hold the counter to finish set</string>
+    <string name="help_paused">Tap the counter to resume\n\nTap and hold the counter to finish set</string>
+    <string name="help_between_sets">Tap the counter to start a new set\n\nTap and hold the counter to reset workout</string>
+    <string name="empty_string" translatable="false"/>
+
+    <string name="workout_sets_completed">Sets completed: </string>
+    <string name="workout_confirm_reset">Reset workout</string>
+
+    <string name="generic_save">Save</string>
+    <string name="generic_name">Name</string>
+    <string name="generic_ok">OK</string>
+    <string name="generic_cancel">Cancel</string>
+    <string name="generic_are_you_sure">Are you sure?</string>
+
+    <string name="exercise_countdown_from"><b>Countdown from</b> %1$.1f seconds</string>
+    <string name="exercise_start_with_up">Start with up</string>
+    <string name="exercise_down_duration"><b>Down duration:</b> %1$.1f seconds</string>
+    <string name="exercise_lower_hold_duration"><b>Lower hold duration:</b> %1$.1f seconds</string>
+    <string name="exercise_up_duration"><b>Up duration:</b> %1$.1f seconds</string>
+    <string name="exercise_upper_hold_duration"><b>Upper hold duration:</b> %1$.1f seconds</string>
+
+    <string name="app_bar_options_menu">Options</string>
+    <string name="app_bar_edit">Edit exercise</string>
+    <string name="app_bar_delete">Delete exercise</string>
+    <string name="app_bar_volume">Volume</string>
+    <string name="app_bar_volume_explanation">Volume relative to the system volume.\nChanges apply to the next sound.</string>
+
+    <string name="drawer_create_new">Create new exercise</string>
+    <string name="drawer_open">Open drawer</string>
+    <string name="drawer_privacy_policy">Privacy Policy</string>
 </resources>
