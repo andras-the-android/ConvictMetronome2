@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "hu.kts.convictmetronome"
+    namespace = "hu.kts.cmetronome"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "hu.kts.convictmetronome"
+        applicationId = "hu.kts.cmetronome"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
