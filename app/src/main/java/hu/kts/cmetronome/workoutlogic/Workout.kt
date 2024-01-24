@@ -1,11 +1,11 @@
 package hu.kts.cmetronome.workoutlogic
 
 import android.util.Log
-import hu.kts.cmetronome.core.Sounds
-import hu.kts.cmetronome.core.TickProvider
-import hu.kts.cmetronome.core.tickPeriod
-import hu.kts.cmetronome.core.ticksToMs
 import hu.kts.cmetronome.persistency.Exercise
+import hu.kts.cmetronome.sounds.Sounds
+import hu.kts.cmetronome.timer.SecondsTimer
+import hu.kts.cmetronome.timer.tickPeriod
+import hu.kts.cmetronome.timer.ticksToMs
 import hu.kts.cmetronome.ui.workout.WorkoutAnimationTargetState
 import hu.kts.cmetronome.ui.workout.WorkoutPhase
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class Workout(
-    private val tickProvider: TickProvider,
+    private val secondsTimer: SecondsTimer,
     private val sounds: Sounds,
     private val countdownCalculator: CountdownCalculator,
     private val workoutInProgressCalculator: WorkoutInProgressCalculator,
@@ -45,7 +45,7 @@ class Workout(
 
     init {
         coroutineScope.launch {
-            tickProvider.tickFlow.collect { onTick() }
+            secondsTimer.tickFlow.collect { onTick() }
         }
     }
 
@@ -54,16 +54,16 @@ class Workout(
         when (val localPhase = phase) {
             is WorkoutPhase.Initial -> {
                 phase = WorkoutPhase.Countdown()
-                tickProvider.start()
+                secondsTimer.start()
             }
             is WorkoutPhase.Countdown -> {
-                tickProvider.stop()
+                secondsTimer.stop()
                 phase =
                     WorkoutPhase.Paused(ticksFromPreviousPhase = localPhase.ticksFromPreviousPhase)
             }
             is WorkoutPhase.InProgress -> {
                 sounds.stop()
-                tickProvider.stop()
+                secondsTimer.stop()
                 phase = WorkoutPhase.Paused(
                     ticksFromPreviousPhase =
                     workoutInProgressCalculator.removeLatestRepFromTicks(exercise, localPhase.ticks)
@@ -73,7 +73,7 @@ class Workout(
             is WorkoutPhase.Paused -> {
                 phase =
                     WorkoutPhase.Countdown(ticksFromPreviousPhase = localPhase.ticksFromPreviousPhase)
-                tickProvider.start()
+                secondsTimer.start()
             }
             is WorkoutPhase.BetweenSets -> {
                 phase = WorkoutPhase.Countdown()
@@ -92,7 +92,7 @@ class Workout(
 
             is WorkoutPhase.Paused -> {
                 phase = WorkoutPhase.BetweenSets()
-                tickProvider.start()
+                secondsTimer.start()
                 return true
             }
 

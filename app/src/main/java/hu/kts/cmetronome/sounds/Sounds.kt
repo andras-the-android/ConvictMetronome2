@@ -1,4 +1,4 @@
-package hu.kts.cmetronome.core
+package hu.kts.cmetronome.sounds
 
 import android.media.AudioTrack
 import android.media.ToneGenerator

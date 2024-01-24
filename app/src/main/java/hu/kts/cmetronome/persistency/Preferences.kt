@@ -1,7 +1,7 @@
 package hu.kts.cmetronome.persistency
 
 import android.content.SharedPreferences
-import hu.kts.cmetronome.core.Sounds
+import hu.kts.cmetronome.sounds.Sounds
 import javax.inject.Inject
 
 class Preferences @Inject constructor(

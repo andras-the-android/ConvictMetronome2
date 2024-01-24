@@ -1,4 +1,4 @@
-package hu.kts.cmetronome.core
+package hu.kts.cmetronome.sounds
 
 import javax.inject.Inject
 import kotlin.math.sin

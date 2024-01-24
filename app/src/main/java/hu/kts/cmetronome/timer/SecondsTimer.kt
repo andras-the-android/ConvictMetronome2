@@ -1,4 +1,4 @@
-package hu.kts.cmetronome.core
+package hu.kts.cmetronome.timer
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -8,7 +8,7 @@ import java.util.Timer
 import java.util.TimerTask
 import javax.inject.Inject
 
-class TickProvider @Inject constructor(
+class SecondsTimer @Inject constructor(
     private val coroutineScope: CoroutineScope
 ) {
 
@@ -19,6 +19,7 @@ class TickProvider @Inject constructor(
     private val timer = Timer()
 
     fun start() {
+        stop()
         task = object : TimerTask() {
             override fun run() {
                 coroutineScope.launch {
@@ -35,6 +36,6 @@ class TickProvider @Inject constructor(
 
 }
 
-const val tickPeriod = 500
+const val tickPeriod = 1000
 
 fun Int.ticksToMs() = this * tickPeriod

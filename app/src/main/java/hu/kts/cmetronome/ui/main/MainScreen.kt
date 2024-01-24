@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hu.kts.cmetronome.R
-import hu.kts.cmetronome.core.Sounds
+import hu.kts.cmetronome.sounds.Sounds
 import hu.kts.cmetronome.ui.theme.CmTheme
 import hu.kts.cmetronome.ui.workout.WorkoutActionCallbacks
 import hu.kts.cmetronome.ui.workout.WorkoutAnimationTargetState

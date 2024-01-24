@@ -1,6 +1,6 @@
 package hu.kts.cmetronome.ui.main
 
-import hu.kts.cmetronome.core.Sounds
+import hu.kts.cmetronome.sounds.Sounds
 
 
 data class AppBarActionState(

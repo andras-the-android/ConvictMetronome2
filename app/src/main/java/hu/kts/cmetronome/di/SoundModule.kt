@@ -9,7 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import hu.kts.cmetronome.core.SoundArrayGenerator
+import hu.kts.cmetronome.sounds.SoundArrayGenerator
 
 @Module
 @InstallIn(SingletonComponent::class)
