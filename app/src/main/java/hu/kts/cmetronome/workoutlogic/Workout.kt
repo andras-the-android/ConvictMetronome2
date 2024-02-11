@@ -2,81 +2,123 @@ package hu.kts.cmetronome.workoutlogic
 
 import android.util.Log
 import hu.kts.cmetronome.persistency.Exercise
+import hu.kts.cmetronome.persistency.getInitialAnimationTargetState
+import hu.kts.cmetronome.persistency.phaseDurationMillis
 import hu.kts.cmetronome.sounds.Sounds
+import hu.kts.cmetronome.timer.ExercisePhase
+import hu.kts.cmetronome.timer.ExerciseTimer
 import hu.kts.cmetronome.timer.SecondsTimer
-import hu.kts.cmetronome.timer.tickPeriod
-import hu.kts.cmetronome.timer.ticksToMs
 import hu.kts.cmetronome.ui.workout.WorkoutAnimationTargetState
 import hu.kts.cmetronome.ui.workout.WorkoutPhase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Clock
 import java.util.concurrent.TimeUnit
 
 class Workout(
     private val secondsTimer: SecondsTimer,
+    private val exerciseTimer: ExerciseTimer,
     private val sounds: Sounds,
-    private val countdownCalculator: CountdownCalculator,
-    private val workoutInProgressCalculator: WorkoutInProgressCalculator,
     private val exercise: Exercise,
     private val coroutineScope: CoroutineScope,
+    private val clock: Clock
 ) {
 
+    private val persistentState = MutableStateFlow(WorkoutPersistentState())
+    private val animationTargetState = MutableStateFlow(exercise.getInitialAnimationTargetState())
+    private var countdownValue = MutableStateFlow(countdownEmptyValue)
+    private var interSetClockMillis = MutableStateFlow<Int?>(null)
+
     var phase: WorkoutPhase
-        get() = _state.value.phase
+        get() = persistentState.value.phase
         private set(value) {
             // reset animation if we switch from InProgress
-            val animationTargetState = if (_state.value.phase is WorkoutPhase.InProgress) {
-                exercise.getInitialAnimationTargetState()
-            } else {
-                _state.value.animationTargetState
+            if (persistentState.value.phase is WorkoutPhase.InProgress) {
+                animationTargetState.value = exercise.getInitialAnimationTargetState()
             }
-            _state.update { it.copy(phase = value, animationTargetState = animationTargetState) }
+            interSetClockMillis.value = null
+
+            when (value) {
+                WorkoutPhase.BetweenSets -> {
+                    sounds.stop()
+                    exerciseTimer.stop()
+                    persistentState.update {
+                        it.copy(
+                            phase = value,
+                            interSetTimerStartedUtc = clock.millis(),
+                            completedSets = it.completedSets.inc()
+                        )
+                    }
+                    secondsTimer.start()
+                }
+                WorkoutPhase.Countdown -> {
+                    // reset reps if the previous state was BetweenSets
+                    val reps = if (persistentState.value.phase is WorkoutPhase.BetweenSets) 0 else persistentState.value.reps
+                    secondsTimer.stop()
+                    persistentState.update { it.copy(phase = value, reps = reps) }
+                    secondsTimer.start()
+                }
+                WorkoutPhase.InProgress -> {
+                    persistentState.update { it.copy(phase = value) }
+                    exerciseTimer.start(exercise)
+                }
+                WorkoutPhase.Initial -> {
+                    persistentState.update { it.copy(phase = value) }
+                }
+                WorkoutPhase.Paused -> {
+                    sounds.stop()
+                    exerciseTimer.stop()
+                    secondsTimer.stop()
+                    persistentState.update { it.copy(phase = value) }
+                }
+            }
         }
 
-
-    private val _state = MutableStateFlow(WorkoutState(
-        animationTargetState = exercise.getInitialAnimationTargetState()
-    ))
-    val state = _state.asStateFlow()
+    val state = combine(
+        persistentState,
+        animationTargetState,
+        countdownValue,
+        interSetClockMillis,
+    ) { persistentState, animationTargetState, countdownValue, interSetClockMillis ->
+        WorkoutState(
+            animationTargetState = animationTargetState,
+            repCounter = if (persistentState.phase is WorkoutPhase.Countdown) countdownValue else persistentState.reps,
+            interSetClockMillis = interSetClockMillis,
+            completedSets = persistentState.completedSets,
+            phase = persistentState.phase
+        )
+    }
 
     init {
         coroutineScope.launch {
-            secondsTimer.tickFlow.collect { onTick() }
+            secondsTimer.tickFlow.collect { onSecondTick() }
+        }
+        coroutineScope.launch {
+            exerciseTimer.eventFlow.collect { onExercisePhaseChanged(it) }
         }
     }
 
     fun onCounterClick() {
         Log.d(tagWorkout, "onCounterClick")
-        when (val localPhase = phase) {
+        when (phase) {
             is WorkoutPhase.Initial -> {
-                phase = WorkoutPhase.Countdown()
-                secondsTimer.start()
+                phase = WorkoutPhase.Countdown
             }
             is WorkoutPhase.Countdown -> {
-                secondsTimer.stop()
-                phase =
-                    WorkoutPhase.Paused(ticksFromPreviousPhase = localPhase.ticksFromPreviousPhase)
+                phase = WorkoutPhase.Paused
             }
             is WorkoutPhase.InProgress -> {
-                sounds.stop()
-                secondsTimer.stop()
-                phase = WorkoutPhase.Paused(
-                    ticksFromPreviousPhase =
-                    workoutInProgressCalculator.removeLatestRepFromTicks(exercise, localPhase.ticks)
-                )
-
+                phase = WorkoutPhase.Paused
             }
             is WorkoutPhase.Paused -> {
-                phase =
-                    WorkoutPhase.Countdown(ticksFromPreviousPhase = localPhase.ticksFromPreviousPhase)
-                secondsTimer.start()
+                phase = WorkoutPhase.Countdown
             }
             is WorkoutPhase.BetweenSets -> {
-                phase = WorkoutPhase.Countdown()
+                phase = WorkoutPhase.Countdown
             }
         }
     }
@@ -85,14 +127,12 @@ class Workout(
         Log.d(tagWorkout, "onCounterLongClick")
         when (phase) {
             is WorkoutPhase.InProgress-> {
-                sounds.stop()
-                phase = WorkoutPhase.BetweenSets()
+                phase = WorkoutPhase.BetweenSets
                 return true
             }
 
             is WorkoutPhase.Paused -> {
-                phase = WorkoutPhase.BetweenSets()
-                secondsTimer.start()
+                phase = WorkoutPhase.BetweenSets
                 return true
             }
 
@@ -109,70 +149,50 @@ class Workout(
         coroutineScope.cancel()
     }
 
-    private fun onTick() {
-        when (val localPhase = phase.inc()) {
+    private fun onSecondTick() {
+        if (persistentState.value.phase is WorkoutPhase.BetweenSets) {
+            val interSetClockMillisLong = clock.millis() - persistentState.value.interSetTimerStartedUtc
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(interSetClockMillisLong)
+            if (seconds > 0 && seconds % beepSeconds == 0L) sounds.beep()
+            interSetClockMillis.value = interSetClockMillisLong.toInt()
+        }
 
-            is WorkoutPhase.Initial -> throw IllegalStateException("Tick provider should not run when state is initial")
-
-            is WorkoutPhase.Countdown -> {
-                val repCounter = countdownCalculator.getCounter(exercise, localPhase.ticks)
-                if (repCounter > 0) {
-                    _state.update {
-                        it.copy(
-                            repCounter = repCounter,
-                            interSetClockMillis = null,
-                            phase = localPhase,
-                        )
-                    }
-                } else {
-                    phase = WorkoutPhase.InProgress(localPhase.ticksFromPreviousPhase)
-                    onTick()
-                }
+        if (persistentState.value.phase is WorkoutPhase.Countdown) {
+            if (countdownValue.value < 0) {
+                countdownValue.value = TimeUnit.MILLISECONDS.toSeconds(exercise.countdownFromMillis.toLong()).toInt()
+                return
             }
-
-            is WorkoutPhase.InProgress -> {
-                val (repCounter, newAnimationTargetState) = workoutInProgressCalculator.getCounterAndAnimationTarget(exercise, localPhase.ticks)
-                if (_state.value.animationTargetState != newAnimationTargetState) {
-                    when (newAnimationTargetState) {
-                        is WorkoutAnimationTargetState.Bottom -> sounds.makeDownSound()
-                        is WorkoutAnimationTargetState.Top -> sounds.makeUpSound()
-                    }
-                }
-                _state.update {
-                    it.copy(
-                        repCounter = repCounter,
-                        animationTargetState = newAnimationTargetState,
-                        phase = localPhase,
-                    )
-                }
+            if (countdownValue.value == 1) {
+                phase = WorkoutPhase.InProgress
+                countdownValue.value = countdownEmptyValue
+                return
             }
+            countdownValue.update { it.dec() }
+        }
+    }
 
-            is WorkoutPhase.Paused -> throw IllegalStateException("Tick provider should not run when state is paused")
-
-            is WorkoutPhase.BetweenSets -> {
-                _state.update {
-                    it.copy(
-                        interSetClockMillis = localPhase.ticks.ticksToMs(),
-                        // increase the completed sets if this is the first tick in the phase
-                        completedSets = if (localPhase.ticks == 0) it.completedSets + 1 else it.completedSets,
-                        phase = localPhase,
-                    )
-                }
-                // beep after every elapsed minutes
-                if (localPhase.ticks > 0 && (localPhase.ticks % beepTicks) == 0) sounds.beep()
+    private fun onExercisePhaseChanged(phase: ExercisePhase) {
+        when (phase) {
+            ExercisePhase.Down -> {
+                animationTargetState.value = WorkoutAnimationTargetState.Bottom(exercise.phaseDurationMillis(phase))
+                sounds.makeDownSound()
+            }
+            ExercisePhase.LowerHold -> {
+                if (exercise.startWithUp) persistentState.update { it.copy(reps = it.reps.inc()) }
+            }
+            ExercisePhase.Up -> {
+                animationTargetState.value = WorkoutAnimationTargetState.Top(exercise.phaseDurationMillis(phase))
+                sounds.makeUpSound()
+            }
+            ExercisePhase.UpperHold -> {
+                if (!exercise.startWithUp) persistentState.update { it.copy(reps = it.reps.inc()) }
             }
         }
     }
 
-    private fun Exercise.getInitialAnimationTargetState(): WorkoutAnimationTargetState {
-        return if (this.startWithUp)
-            WorkoutAnimationTargetState.Bottom(animationResetDuration)
-        else
-            WorkoutAnimationTargetState.Top(animationResetDuration)
-    }
-
     companion object {
-        private val beepTicks = TimeUnit.MINUTES.toMillis(1).toInt() / tickPeriod
+        private const val beepSeconds = 60
+        private const val countdownEmptyValue = Int.MIN_VALUE
         const val animationResetDuration = 200
         const val tagWorkout = "tagworkout"
     }

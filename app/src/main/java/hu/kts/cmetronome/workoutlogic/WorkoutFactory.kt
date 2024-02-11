@@ -2,17 +2,19 @@ package hu.kts.cmetronome.workoutlogic
 
 import hu.kts.cmetronome.persistency.Exercise
 import hu.kts.cmetronome.sounds.Sounds
+import hu.kts.cmetronome.timer.ExerciseTimer
 import hu.kts.cmetronome.timer.SecondsTimer
 import kotlinx.coroutines.CoroutineScope
+import java.time.Clock
 import javax.inject.Inject
 import javax.inject.Provider
 
 class WorkoutFactory @Inject constructor(
     private val secondsTimer: Provider<SecondsTimer>,
+    private val exerciseTimer: Provider<ExerciseTimer>,
     private val sounds: Provider<Sounds>,
-    private val countdownCalculator: Provider<CountdownCalculator>,
-    private val workoutInProgressCalculator: Provider<WorkoutInProgressCalculator>,
-    private val coroutineScopeProvider: Provider<CoroutineScope>
+    private val coroutineScopeProvider: Provider<CoroutineScope>,
+    private val clockProvider: Provider<Clock>,
 ) {
 
     private var previousWorkout: Workout? = null
@@ -22,11 +24,11 @@ class WorkoutFactory @Inject constructor(
 
         return Workout(
             secondsTimer = secondsTimer.get(),
+            exerciseTimer = exerciseTimer.get(),
             sounds = sounds.get(),
-            countdownCalculator = countdownCalculator.get(),
-            workoutInProgressCalculator = workoutInProgressCalculator.get(),
             exercise = exercise,
-            coroutineScope = coroutineScopeProvider.get()
+            coroutineScope = coroutineScopeProvider.get(),
+            clock = clockProvider.get()
         ).also { previousWorkout = it }
     }
 }

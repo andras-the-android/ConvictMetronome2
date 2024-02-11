@@ -1,32 +1,14 @@
 package hu.kts.cmetronome.ui.workout
 
 sealed interface WorkoutPhase {
-    data object Initial: WorkoutPhase {
-        override fun inc() = this
-    }
 
-    data class Countdown(
-        val ticksFromPreviousPhase: Int = initialClick,
-        val ticks: Int = initialClick
-    ): WorkoutPhase {
-        override fun inc() = copy(ticks = ticks + 1)
-    }
+    data object Initial: WorkoutPhase
 
-    data class InProgress(val ticks: Int = initialClick): WorkoutPhase {
-        override fun inc() = copy(ticks = ticks + 1)
-    }
+    data object Countdown: WorkoutPhase
 
-    data class Paused(val ticksFromPreviousPhase: Int): WorkoutPhase {
-        override fun inc() = this
-    }
+    data object InProgress: WorkoutPhase
 
-    data class BetweenSets(val ticks: Int = initialClick): WorkoutPhase {
-        override fun inc() = copy(ticks = ticks + 1)
-    }
+    data object Paused: WorkoutPhase
 
-    operator fun inc(): WorkoutPhase
-
-    companion object {
-        private const val initialClick = -1 // -1 to let the 0th tick increase it to 0
-    }
+    data object BetweenSets: WorkoutPhase
 }
