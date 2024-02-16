@@ -18,6 +18,7 @@ import hu.kts.cmetronome.ui.workout.WorkoutPhase.Paused
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -30,19 +31,22 @@ class Workout(
     private val sounds: Sounds,
     private val exercise: Exercise,
     private val coroutineScope: CoroutineScope,
-    private val clock: Clock
+    private val clock: Clock,
+    savedState: WorkoutPersistentState,
 ) {
 
-    private val persistentState = MutableStateFlow(WorkoutPersistentState())
+    private val _persistentState = MutableStateFlow(savedState.initFromSavedState())
+    val persistentState = _persistentState.asStateFlow()
+
     private val animationTargetState = MutableStateFlow(exercise.getInitialAnimationTargetState())
     private var countdownValue = MutableStateFlow(countdownEmptyValue)
     private var interSetClockMillis = MutableStateFlow<Int?>(null)
 
     var phase: WorkoutPhase
-        get() = persistentState.value.phase
+        get() = _persistentState.value.phase
         private set(value) {
             // reset animation if we switch from InProgress
-            if (persistentState.value.phase == InProgress) {
+            if (_persistentState.value.phase == InProgress) {
                 animationTargetState.value = exercise.getInitialAnimationTargetState()
             }
             interSetClockMillis.value = null
@@ -51,7 +55,7 @@ class Workout(
                 BetweenSets -> {
                     sounds.stop()
                     exerciseTimer.stop()
-                    persistentState.update {
+                    _persistentState.update {
                         it.copy(
                             phase = value,
                             interSetTimerStartedUtc = clock.millis(),
@@ -64,32 +68,32 @@ class Workout(
                 Countdown -> {
                     // reset reps if the previous state was BetweenSets
                     val reps =
-                        if (persistentState.value.phase == BetweenSets) 0 else persistentState.value.reps
+                        if (_persistentState.value.phase == BetweenSets) 0 else _persistentState.value.reps
                     secondsTimer.stop()
-                    persistentState.update { it.copy(phase = value, reps = reps) }
+                    _persistentState.update { it.copy(phase = value, reps = reps) }
                     secondsTimer.start()
                 }
 
                 InProgress -> {
-                    persistentState.update { it.copy(phase = value) }
+                    _persistentState.update { it.copy(phase = value) }
                     exerciseTimer.start(exercise)
                 }
 
                 Initial -> {
-                    persistentState.update { it.copy(phase = value) }
+                    _persistentState.update { it.copy(phase = value) }
                 }
 
                 Paused -> {
                     sounds.stop()
                     exerciseTimer.stop()
                     secondsTimer.stop()
-                    persistentState.update { it.copy(phase = value) }
+                    _persistentState.update { it.copy(phase = value) }
                 }
             }
         }
 
     val state = combine(
-        persistentState,
+        _persistentState,
         animationTargetState,
         countdownValue,
         interSetClockMillis,
@@ -110,6 +114,7 @@ class Workout(
         coroutineScope.launch {
             exerciseTimer.eventFlow.collect { onExercisePhaseChanged(it) }
         }
+        if (phase == BetweenSets) secondsTimer.start()
     }
 
     fun onCounterClick() {
@@ -164,15 +169,15 @@ class Workout(
     }
 
     private fun onSecondTick() {
-        if (persistentState.value.phase == BetweenSets) {
+        if (_persistentState.value.phase == BetweenSets) {
             val interSetClockMillisLong =
-                clock.millis() - persistentState.value.interSetTimerStartedUtc
+                clock.millis() - _persistentState.value.interSetTimerStartedUtc
             val seconds = TimeUnit.MILLISECONDS.toSeconds(interSetClockMillisLong)
             if (seconds > 0 && seconds % beepSeconds == 0L) sounds.beep()
             interSetClockMillis.value = interSetClockMillisLong.toInt()
         }
 
-        if (persistentState.value.phase == Countdown) {
+        if (_persistentState.value.phase == Countdown) {
             if (countdownValue.value < 0) {
                 countdownValue.value =
                     TimeUnit.MILLISECONDS.toSeconds(exercise.countdownFromMillis.toLong()).toInt()
@@ -194,16 +199,30 @@ class Workout(
                 sounds.makeDownSound()
             }
             ExercisePhase.LowerHold -> {
-                if (exercise.startWithUp) persistentState.update { it.copy(reps = it.reps.inc()) }
+                if (exercise.startWithUp) _persistentState.update { it.copy(reps = it.reps.inc()) }
             }
+
             ExercisePhase.Up -> {
-                animationTargetState.value = WorkoutAnimationTargetState.Top(exercise.phaseDurationMillis(phase))
+                animationTargetState.value =
+                    WorkoutAnimationTargetState.Top(exercise.phaseDurationMillis(phase))
                 sounds.makeUpSound()
             }
+
             ExercisePhase.UpperHold -> {
-                if (!exercise.startWithUp) persistentState.update { it.copy(reps = it.reps.inc()) }
+                if (!exercise.startWithUp) _persistentState.update { it.copy(reps = it.reps.inc()) }
             }
         }
+    }
+
+    private fun WorkoutPersistentState.initFromSavedState(): WorkoutPersistentState {
+        val phase = when (this.phase) {
+            Initial -> Initial
+            Countdown -> Paused
+            InProgress -> Paused
+            Paused -> Paused
+            BetweenSets -> BetweenSets
+        }
+        return this.copy(phase = phase)
     }
 
     companion object {

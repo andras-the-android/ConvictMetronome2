@@ -1,6 +1,7 @@
 package hu.kts.cmetronome.repository
 
 import android.util.Log
+import hu.kts.cmetronome.persistency.Preferences
 import hu.kts.cmetronome.workoutlogic.Workout.Companion.tagWorkout
 import hu.kts.cmetronome.workoutlogic.WorkoutFactory
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +18,7 @@ class WorkoutRepository @Inject constructor(
     exerciseRepository: ExerciseRepository,
     workoutFactory: WorkoutFactory,
     private val coroutineScope: CoroutineScope,
+    private val preferences: Preferences
 ) {
     private val resetWorkout = MutableSharedFlow<Unit>(replay = 1)
 
@@ -25,20 +27,30 @@ class WorkoutRepository @Inject constructor(
         resetWorkout,
     ) { selectedExercise, _ ->
         Log.v(tagWorkout, "WorkoutRepository state triggered")
-        workoutFactory.create(selectedExercise)
+        val workout = workoutFactory.create(selectedExercise, preferences.workoutState)
+        coroutineScope.launch {
+            workout.persistentState.collect {
+                preferences.workoutState = it
+            }
+        }
+        return@combine workout
     }.shareIn(coroutineScope, SharingStarted.Lazily, 1)
 
     init {
         // we have to send one event to make combine work
-        resetWorkout()
+        triggerResetEvent()
     }
 
     fun resetWorkout() {
+        preferences.clearSavedWorkoutState()
+        triggerResetEvent()
+    }
+
+    private fun triggerResetEvent() {
         coroutineScope.launch {
             resetWorkout.emit(Unit)
         }
     }
-
 
 
 }

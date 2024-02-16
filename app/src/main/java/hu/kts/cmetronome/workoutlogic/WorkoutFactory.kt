@@ -19,7 +19,7 @@ class WorkoutFactory @Inject constructor(
 
     private var previousWorkout: Workout? = null
 
-    fun create(exercise: Exercise): Workout {
+    fun create(exercise: Exercise, savedState: WorkoutPersistentState): Workout {
         previousWorkout?.dispose()
 
         return Workout(
@@ -28,7 +28,8 @@ class WorkoutFactory @Inject constructor(
             sounds = sounds.get(),
             exercise = exercise,
             coroutineScope = coroutineScopeProvider.get(),
-            clock = clockProvider.get()
+            clock = clockProvider.get(),
+            savedState = savedState
         ).also { previousWorkout = it }
     }
 }

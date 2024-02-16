@@ -1,5 +1,6 @@
 package hu.kts.cmetronome.di
 
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,6 +35,11 @@ object AppModule {
     @IoDispatcher
     fun provideIoDispatcher(): CoroutineContext {
         return Dispatchers.IO
+    }
+
+    @Provides
+    fun provideGson(): Gson {
+        return Gson()
     }
 
 }
