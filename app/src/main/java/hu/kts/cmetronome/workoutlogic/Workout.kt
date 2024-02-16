@@ -10,6 +10,11 @@ import hu.kts.cmetronome.timer.ExerciseTimer
 import hu.kts.cmetronome.timer.SecondsTimer
 import hu.kts.cmetronome.ui.workout.WorkoutAnimationTargetState
 import hu.kts.cmetronome.ui.workout.WorkoutPhase
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.BetweenSets
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.Countdown
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.InProgress
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.Initial
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.Paused
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,13 +42,13 @@ class Workout(
         get() = persistentState.value.phase
         private set(value) {
             // reset animation if we switch from InProgress
-            if (persistentState.value.phase is WorkoutPhase.InProgress) {
+            if (persistentState.value.phase == InProgress) {
                 animationTargetState.value = exercise.getInitialAnimationTargetState()
             }
             interSetClockMillis.value = null
 
             when (value) {
-                WorkoutPhase.BetweenSets -> {
+                BetweenSets -> {
                     sounds.stop()
                     exerciseTimer.stop()
                     persistentState.update {
@@ -55,21 +60,26 @@ class Workout(
                     }
                     secondsTimer.start()
                 }
-                WorkoutPhase.Countdown -> {
+
+                Countdown -> {
                     // reset reps if the previous state was BetweenSets
-                    val reps = if (persistentState.value.phase is WorkoutPhase.BetweenSets) 0 else persistentState.value.reps
+                    val reps =
+                        if (persistentState.value.phase == BetweenSets) 0 else persistentState.value.reps
                     secondsTimer.stop()
                     persistentState.update { it.copy(phase = value, reps = reps) }
                     secondsTimer.start()
                 }
-                WorkoutPhase.InProgress -> {
+
+                InProgress -> {
                     persistentState.update { it.copy(phase = value) }
                     exerciseTimer.start(exercise)
                 }
-                WorkoutPhase.Initial -> {
+
+                Initial -> {
                     persistentState.update { it.copy(phase = value) }
                 }
-                WorkoutPhase.Paused -> {
+
+                Paused -> {
                     sounds.stop()
                     exerciseTimer.stop()
                     secondsTimer.stop()
@@ -86,7 +96,7 @@ class Workout(
     ) { persistentState, animationTargetState, countdownValue, interSetClockMillis ->
         WorkoutState(
             animationTargetState = animationTargetState,
-            repCounter = if (persistentState.phase is WorkoutPhase.Countdown) countdownValue else persistentState.reps,
+            repCounter = if (persistentState.phase == Countdown) countdownValue else persistentState.reps,
             interSetClockMillis = interSetClockMillis,
             completedSets = persistentState.completedSets,
             phase = persistentState.phase
@@ -105,20 +115,24 @@ class Workout(
     fun onCounterClick() {
         Log.d(tagWorkout, "onCounterClick")
         when (phase) {
-            is WorkoutPhase.Initial -> {
-                phase = WorkoutPhase.Countdown
+            Initial -> {
+                phase = Countdown
             }
-            is WorkoutPhase.Countdown -> {
-                phase = WorkoutPhase.Paused
+
+            Countdown -> {
+                phase = Paused
             }
-            is WorkoutPhase.InProgress -> {
-                phase = WorkoutPhase.Paused
+
+            InProgress -> {
+                phase = Paused
             }
-            is WorkoutPhase.Paused -> {
-                phase = WorkoutPhase.Countdown
+
+            Paused -> {
+                phase = Countdown
             }
-            is WorkoutPhase.BetweenSets -> {
-                phase = WorkoutPhase.Countdown
+
+            BetweenSets -> {
+                phase = Countdown
             }
         }
     }
@@ -126,21 +140,21 @@ class Workout(
     fun onCounterLongClick(): Boolean {
         Log.d(tagWorkout, "onCounterLongClick")
         when (phase) {
-            is WorkoutPhase.InProgress-> {
-                phase = WorkoutPhase.BetweenSets
+            InProgress -> {
+                phase = BetweenSets
                 return true
             }
 
-            is WorkoutPhase.Paused -> {
-                phase = WorkoutPhase.BetweenSets
+            Paused -> {
+                phase = BetweenSets
                 return true
             }
 
-            is WorkoutPhase.BetweenSets -> {
+            BetweenSets -> {
                 throw IllegalStateException("Create a new workout instead!")
             }
 
-            is WorkoutPhase.Countdown, WorkoutPhase.Initial -> {}
+            Countdown, Initial -> {}
         }
         return false
     }
@@ -150,20 +164,22 @@ class Workout(
     }
 
     private fun onSecondTick() {
-        if (persistentState.value.phase is WorkoutPhase.BetweenSets) {
-            val interSetClockMillisLong = clock.millis() - persistentState.value.interSetTimerStartedUtc
+        if (persistentState.value.phase == BetweenSets) {
+            val interSetClockMillisLong =
+                clock.millis() - persistentState.value.interSetTimerStartedUtc
             val seconds = TimeUnit.MILLISECONDS.toSeconds(interSetClockMillisLong)
             if (seconds > 0 && seconds % beepSeconds == 0L) sounds.beep()
             interSetClockMillis.value = interSetClockMillisLong.toInt()
         }
 
-        if (persistentState.value.phase is WorkoutPhase.Countdown) {
+        if (persistentState.value.phase == Countdown) {
             if (countdownValue.value < 0) {
-                countdownValue.value = TimeUnit.MILLISECONDS.toSeconds(exercise.countdownFromMillis.toLong()).toInt()
+                countdownValue.value =
+                    TimeUnit.MILLISECONDS.toSeconds(exercise.countdownFromMillis.toLong()).toInt()
                 return
             }
             if (countdownValue.value == 1) {
-                phase = WorkoutPhase.InProgress
+                phase = InProgress
                 countdownValue.value = countdownEmptyValue
                 return
             }

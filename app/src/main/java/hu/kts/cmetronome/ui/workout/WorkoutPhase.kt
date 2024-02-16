@@ -1,14 +1,7 @@
 package hu.kts.cmetronome.ui.workout
 
-sealed interface WorkoutPhase {
+enum class WorkoutPhase {
 
-    data object Initial: WorkoutPhase
+    Initial, Countdown, InProgress, Paused, BetweenSets;
 
-    data object Countdown: WorkoutPhase
-
-    data object InProgress: WorkoutPhase
-
-    data object Paused: WorkoutPhase
-
-    data object BetweenSets: WorkoutPhase
 }

@@ -9,6 +9,9 @@ import hu.kts.cmetronome.R
 import hu.kts.cmetronome.repository.WorkoutRepository
 import hu.kts.cmetronome.ui.workout.WorkoutPhase.BetweenSets
 import hu.kts.cmetronome.ui.workout.WorkoutPhase.Countdown
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.InProgress
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.Initial
+import hu.kts.cmetronome.ui.workout.WorkoutPhase.Paused
 import hu.kts.cmetronome.workoutlogic.Workout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +42,12 @@ class WorkoutViewModel @Inject constructor(
         .combine(showConfirmResetWorkoutDialog) { workoutState, showConfirmResetWorkoutDialog ->
             Log.v(Workout.tagWorkout, "WorkoutViewModel state triggered $workoutState")
             val interSetClock = when (workoutState.phase) {
-                is BetweenSets -> interSetClockFormat.format(Date(workoutState.interSetClockMillis?.toLong() ?: 0L))
+                BetweenSets -> interSetClockFormat.format(
+                    Date(
+                        workoutState.interSetClockMillis?.toLong() ?: 0L
+                    )
+                )
+
                 else -> ""
             }
 
@@ -48,7 +56,7 @@ class WorkoutViewModel @Inject constructor(
                 repCounter = workoutState.repCounter,
                 interSetClock = interSetClock,
                 completedSets = workoutState.completedSets,
-                countdownInProgress = workoutState.phase is Countdown,
+                countdownInProgress = workoutState.phase == Countdown,
                 helpTextResourceId = workoutState.phase.helpTextId(),
                 keepScreenAlive = workoutState.phase.shouldKeepScreenAlive(),
                 showConfirmResetWorkoutDialog = showConfirmResetWorkoutDialog,
@@ -65,11 +73,13 @@ class WorkoutViewModel @Inject constructor(
     override fun onLongClick(eventConsumed: () -> Unit) {
         viewModelScope.launch {
             val workout = getWorkout()
-            if (workout.phase is BetweenSets) {
+            if (workout.phase == BetweenSets) {
                 showConfirmResetWorkoutDialog.value = true
                 eventConsumed()
             } else {
-                if (workout.onCounterLongClick()) { eventConsumed() }
+                if (workout.onCounterLongClick()) {
+                    eventConsumed()
+                }
             }
         }
     }
@@ -85,16 +95,16 @@ class WorkoutViewModel @Inject constructor(
 
     private fun WorkoutPhase.helpTextId(): Int {
         return when (this) {
-            is BetweenSets -> R.string.help_between_sets
-            is WorkoutPhase.InProgress -> R.string.help_in_progress
-            WorkoutPhase.Initial -> R.string.help_initial
-            is WorkoutPhase.Paused -> R.string.help_paused
+            BetweenSets -> R.string.help_between_sets
+            InProgress -> R.string.help_in_progress
+            Initial -> R.string.help_initial
+            Paused -> R.string.help_paused
             else -> R.string.empty_string
         }
     }
 
     private fun WorkoutPhase.shouldKeepScreenAlive(): Boolean {
-        return this is WorkoutPhase.InProgress || this is Countdown || this is BetweenSets
+        return this == InProgress || this == Countdown || this == BetweenSets
     }
 
     private suspend fun getWorkout() = workoutRepository.activeWorkout.first()
