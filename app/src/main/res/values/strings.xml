@@ -16,12 +16,12 @@
     <string name="generic_cancel">Cancel</string>
     <string name="generic_are_you_sure">Are you sure?</string>
 
-    <string name="exercise_countdown_from"><b>Countdown from</b> %1$.1f seconds</string>
+    <string name="exercise_countdown_from"><![CDATA[<b>Countdown from</b> %1$.1f seconds]]></string>
     <string name="exercise_start_with_up">Start with up</string>
-    <string name="exercise_down_duration"><b>Down duration:</b> %1$.1f seconds</string>
-    <string name="exercise_lower_hold_duration"><b>Lower hold duration:</b> %1$.1f seconds</string>
-    <string name="exercise_up_duration"><b>Up duration:</b> %1$.1f seconds</string>
-    <string name="exercise_upper_hold_duration"><b>Upper hold duration:</b> %1$.1f seconds</string>
+    <string name="exercise_down_duration"><![CDATA[<b>Down duration:</b> %1$.1f seconds]]></string>
+    <string name="exercise_lower_hold_duration"><![CDATA[<b>Lower hold duration:</b> %1$.1f seconds]]></string>
+    <string name="exercise_up_duration"><![CDATA[<b>Up duration:</b> %1$.1f seconds]]></string>
+    <string name="exercise_upper_hold_duration"><![CDATA[<b>Upper hold duration:</b> %1$.1f seconds]]></string>
 
     <string name="app_bar_options_menu">Options</string>
     <string name="app_bar_edit">Edit exercise</string>
