@@ -5,6 +5,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -18,13 +19,13 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.AndroidEntryPoint
 import hu.kts.cmetronome.ui.exercise.ExerciseSheet
 import hu.kts.cmetronome.ui.exercise.ExerciseSheetState
@@ -37,11 +38,21 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val mainViewModel: MainViewModel by viewModels()
+    private val workoutViewModel: WorkoutViewModel by viewModels()
+    private val exerciseViewModel: ExerciseViewModel by viewModels()
+    private var showSplash = true
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        installSplashScreen()
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                showSplash
+            }
+        }
 
         enableEdgeToEdge()
 
@@ -50,13 +61,9 @@ class MainActivity : ComponentActivity() {
             val windowSizeClass = calculateWindowSizeClass(this)
             val compactMode = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
 
-
             CmTheme {
-                val workoutViewModel: WorkoutViewModel = viewModel()
                 val workoutState: WorkoutScreenState by workoutViewModel.state.collectAsStateWithLifecycle()
-                val mainViewModel: MainViewModel = viewModel()
                 val mainState: MainScreenState by mainViewModel.state.collectAsStateWithLifecycle()
-                val exerciseViewModel: ExerciseViewModel = viewModel()
                 val exerciseState: ExerciseSheetState by exerciseViewModel.state.collectAsStateWithLifecycle()
 
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -105,6 +112,9 @@ class MainActivity : ComponentActivity() {
 
                             }
                         }
+                    }
+                    LaunchedEffect(showSplash) {
+                        showSplash = false
                     }
                 }
             }
