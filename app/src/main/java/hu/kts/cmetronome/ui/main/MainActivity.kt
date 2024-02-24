@@ -6,6 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -58,7 +62,11 @@ class MainActivity : ComponentActivity() {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val coroutineScope = rememberCoroutineScope()
 
-                AnimatedVisibility(visible = mainState is MainScreenState.Content && workoutState is WorkoutScreenState.Content) {
+                AnimatedVisibility(
+                    visible = mainState is MainScreenState.Content && workoutState is WorkoutScreenState.Content,
+                    enter = fadeIn(spring(stiffness = Spring.StiffnessLow)),
+                    exit = fadeOut(spring(stiffness = Spring.StiffnessLow)),
+                ) {
 
                     val mainContent = mainState as MainScreenState.Content
                     val workoutContent = workoutState as WorkoutScreenState.Content
