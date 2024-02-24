@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +36,8 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        installSplashScreen()
 
         enableEdgeToEdge()
 
@@ -74,7 +77,10 @@ class MainActivity : ComponentActivity() {
                             appBarActionCallbacks = mainViewModel,
                             onEditExerciseClicked = exerciseViewModel::editSelectedExercise,
                         ) {
-                            Box(Modifier.padding(it).fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Box(
+                                Modifier
+                                    .padding(it)
+                                    .fillMaxSize(), contentAlignment = Alignment.Center) {
                                 WorkoutScreen(
                                     state = workoutContent,
                                     compactMode = compactMode,

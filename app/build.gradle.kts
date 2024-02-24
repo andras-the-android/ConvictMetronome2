@@ -80,6 +80,8 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation("androidx.compose.material:material-icons-extended-android")
 
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
     implementation("com.google.dagger:hilt-android:2.49")
     kapt("com.google.dagger:hilt-android-compiler:2.49")
 
