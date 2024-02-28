@@ -48,7 +48,7 @@ class ExerciseViewModel @Inject constructor(
         _state.update {
             (it as ExerciseSheetState.Showing)
             .copy(
-                countdownFromSeconds = ExerciseProperties.valuesInSeconds[value],
+                countdownFromSeconds = ExerciseProperties.countdownLengthSeconds[value],
                 countdownFromPosition = value
             )
         }
@@ -58,7 +58,7 @@ class ExerciseViewModel @Inject constructor(
         _state.update {
             (it as ExerciseSheetState.Showing)
                 .copy(
-                    downSeconds = ExerciseProperties.valuesInSeconds[value],
+                    downSeconds = ExerciseProperties.exercisePhaseLengthSeconds[value],
                     downPosition = value
                 )
         }
@@ -68,7 +68,7 @@ class ExerciseViewModel @Inject constructor(
         _state.update {
             (it as ExerciseSheetState.Showing)
                 .copy(
-                    lowerHoldSeconds = ExerciseProperties.valuesInSeconds[value],
+                    lowerHoldSeconds = ExerciseProperties.exercisePhaseLengthSeconds[value],
                     lowerHoldPosition = value
                 )
         }
@@ -78,7 +78,7 @@ class ExerciseViewModel @Inject constructor(
         _state.update {
             (it as ExerciseSheetState.Showing)
                 .copy(
-                    upSeconds = ExerciseProperties.valuesInSeconds[value],
+                    upSeconds = ExerciseProperties.exercisePhaseLengthSeconds[value],
                     upPosition = value
                 )
         }
@@ -88,7 +88,7 @@ class ExerciseViewModel @Inject constructor(
         _state.update {
             (it as ExerciseSheetState.Showing)
                 .copy(
-                    upperHoldSeconds = ExerciseProperties.valuesInSeconds[value],
+                    upperHoldSeconds = ExerciseProperties.exercisePhaseLengthSeconds[value],
                     upperHoldPosition = value
                 )
         }

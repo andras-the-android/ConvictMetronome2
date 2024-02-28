@@ -53,18 +53,28 @@ sealed interface ExerciseSheetState {
                         id = id,
                         name = name,
                         countdownFromSeconds = countdownFromMillis.millisToSecs(),
-                        countdownFromPosition = ExerciseProperties.getPositionFromSecond(countdownFromMillis.millisToSecs()),
+                        countdownFromPosition = ExerciseProperties.getCountdownLengthPositionFromSecond(
+                            countdownFromMillis.millisToSecs()
+                        ),
                         startWithUp = startWithUp,
                         downSeconds = downMillis.millisToSecs(),
-                        downPosition = ExerciseProperties.getPositionFromSecond(downMillis.millisToSecs()),
+                        downPosition = ExerciseProperties.getExercisePhaseLengthPositionFromSecond(
+                            downMillis.millisToSecs()
+                        ),
                         lowerHoldSeconds = lowerHoldMillis.millisToSecs(),
-                        lowerHoldPosition = ExerciseProperties.getPositionFromSecond(lowerHoldMillis.millisToSecs()),
+                        lowerHoldPosition = ExerciseProperties.getExercisePhaseLengthPositionFromSecond(
+                            lowerHoldMillis.millisToSecs()
+                        ),
                         upSeconds = upMillis.millisToSecs(),
-                        upPosition = ExerciseProperties.getPositionFromSecond(upMillis.millisToSecs()),
+                        upPosition = ExerciseProperties.getExercisePhaseLengthPositionFromSecond(
+                            upMillis.millisToSecs()
+                        ),
                         upperHoldSeconds = upperHoldMillis.millisToSecs(),
-                        upperHoldPosition = ExerciseProperties.getPositionFromSecond(upperHoldMillis.millisToSecs()),
+                        upperHoldPosition = ExerciseProperties.getExercisePhaseLengthPositionFromSecond(
+                            upperHoldMillis.millisToSecs()
+                        ),
 
-                    )
+                        )
                 }
 
             }

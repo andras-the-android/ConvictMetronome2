@@ -61,7 +61,8 @@ fun ExerciseSheet(
             ExerciseItem(
                 titleResId = R.string.exercise_countdown_from,
                 value = state.countdownFromSeconds,
-                position = state.countdownFromPosition
+                position = state.countdownFromPosition,
+                steps = ExerciseProperties.countdownLengthSeconds.count()
             ) { callbacks.onCountdownFromChange(it) }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -75,28 +76,34 @@ fun ExerciseSheet(
                     onCheckedChange = { callbacks.onStartWithUpChange(it) })
             }
 
+            val exercisePhaseSteps = ExerciseProperties.exercisePhaseLengthSeconds.count()
+
             ExerciseItem(
                 titleResId = R.string.exercise_down_duration,
                 value = state.downSeconds,
-                position = state.downPosition
+                position = state.downPosition,
+                steps = exercisePhaseSteps,
             ) { callbacks.onDownChange(it) }
 
             ExerciseItem(
                 titleResId = R.string.exercise_lower_hold_duration,
                 value = state.lowerHoldSeconds,
-                position = state.lowerHoldPosition
+                position = state.lowerHoldPosition,
+                steps = exercisePhaseSteps,
             ) { callbacks.onLowerHoldChange(it) }
 
             ExerciseItem(
                 titleResId = R.string.exercise_up_duration,
                 value = state.upSeconds,
-                position = state.upPosition
+                position = state.upPosition,
+                steps = exercisePhaseSteps,
             ) { callbacks.onUpChange(it) }
 
             ExerciseItem(
                 titleResId = R.string.exercise_upper_hold_duration,
                 value = state.upperHoldSeconds,
-                position = state.upperHoldPosition
+                position = state.upperHoldPosition,
+                steps = exercisePhaseSteps,
             ) { callbacks.onUpperHoldChange(it) }
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -113,6 +120,7 @@ private fun ExerciseItem(
     @StringRes titleResId: Int,
     value: Float,
     position: Int,
+    steps: Int,
     onValueChange: (Int) -> Unit
 ) {
     Column(
@@ -135,8 +143,6 @@ private fun ExerciseItem(
     }
 }
 
-private val steps = ExerciseProperties.valuesInSeconds.count()
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewExerciseItem() {
@@ -147,7 +153,8 @@ fun PreviewExerciseItem() {
         ExerciseItem(
             titleResId = R.string.exercise_down_duration,
             value = value,
-            position = position
+            position = position,
+            steps = positions.count()
         ) {
             position = it
             value = positions[it]
