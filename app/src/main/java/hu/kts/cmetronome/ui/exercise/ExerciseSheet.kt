@@ -137,7 +137,7 @@ private fun ExerciseItem(
             value = position.toFloat(),
             onValueChange = { onValueChange(it.toInt()) },
             valueRange = 0f..steps - 1f,
-            steps = steps,
+            steps = steps - 2,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp)
         )
     }
