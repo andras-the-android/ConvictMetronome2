@@ -39,7 +39,7 @@ class Workout(
     val persistentState = _persistentState.asStateFlow()
 
     private val animationTargetState = MutableStateFlow(exercise.getInitialAnimationTargetState())
-    private var countdownValue = MutableStateFlow(countdownEmptyValue)
+    private var countdownValue = MutableStateFlow(0)
     private var interSetClockMillis = MutableStateFlow<Int?>(null)
 
     var phase: WorkoutPhase
@@ -55,6 +55,7 @@ class Workout(
                 BetweenSets -> {
                     sounds.stop()
                     exerciseTimer.stop()
+                    interSetClockMillis.value = 0
                     _persistentState.update {
                         it.copy(
                             phase = value,
@@ -70,6 +71,9 @@ class Workout(
                     val reps =
                         if (_persistentState.value.phase == BetweenSets) 0 else _persistentState.value.reps
                     secondsTimer.stop()
+                    countdownValue.value =
+                        TimeUnit.MILLISECONDS.toSeconds(exercise.countdownFromMillis.toLong())
+                            .toInt()
                     _persistentState.update { it.copy(phase = value, reps = reps) }
                     secondsTimer.start()
                 }
@@ -178,14 +182,8 @@ class Workout(
         }
 
         if (_persistentState.value.phase == Countdown) {
-            if (countdownValue.value < 0) {
-                countdownValue.value =
-                    TimeUnit.MILLISECONDS.toSeconds(exercise.countdownFromMillis.toLong()).toInt()
-                return
-            }
             if (countdownValue.value == 1) {
                 phase = InProgress
-                countdownValue.value = countdownEmptyValue
                 return
             }
             countdownValue.update { it.dec() }
@@ -227,7 +225,6 @@ class Workout(
 
     companion object {
         private const val beepSeconds = 60
-        private const val countdownEmptyValue = Int.MIN_VALUE
         const val animationResetDuration = 200
         const val tagWorkout = "tagworkout"
     }
