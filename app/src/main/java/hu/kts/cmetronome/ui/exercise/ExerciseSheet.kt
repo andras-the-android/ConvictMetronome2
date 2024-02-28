@@ -34,6 +34,7 @@ import androidx.core.text.HtmlCompat
 import hu.kts.cmetronome.R
 import hu.kts.cmetronome.ui.theme.CmTheme
 import hu.kts.cmetronome.ui.toAnnotatedString
+import kotlin.math.roundToInt
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,7 +136,7 @@ private fun ExerciseItem(
         Text(text = title, color = MaterialTheme.colorScheme.outline)
         Slider(
             value = position.toFloat(),
-            onValueChange = { onValueChange(it.toInt()) },
+            onValueChange = { onValueChange(it.roundToInt()) },
             valueRange = 0f..steps - 1f,
             steps = steps - 2,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp)
