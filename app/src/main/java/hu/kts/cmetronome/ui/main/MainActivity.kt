@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
@@ -36,6 +37,7 @@ import hu.kts.cmetronome.ui.workout.WorkoutScreenState
 import hu.kts.cmetronome.ui.workout.WorkoutViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 

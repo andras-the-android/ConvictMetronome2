@@ -13,6 +13,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -39,11 +41,12 @@ import hu.kts.cmetronome.ui.toAnnotatedString
 fun ExerciseSheet(
     onDismissRequest: () -> Unit,
     state: ExerciseSheetState.Showing,
-    callbacks: ExerciseSheetCallbacks
+    callbacks: ExerciseSheetCallbacks,
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = sheetState,
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -152,6 +155,7 @@ fun PreviewExerciseItem() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewExerciseSheet() {
@@ -159,7 +163,7 @@ fun PreviewExerciseSheet() {
         val state = ExerciseSheetState.Showing(
             id = 0,
             name = "Sample",
-            
+
             countdownFromSeconds = 3.0F,
             countdownFromPosition = 3,
 
@@ -190,7 +194,11 @@ fun PreviewExerciseSheet() {
                 override fun onUpChange(value: Int) {}
                 override fun onUpperHoldChange(value: Int) {}
                 override fun onSaveClicked() {}
-            }
+            },
+            sheetState = SheetState(
+                skipPartiallyExpanded = true,
+                initialValue = SheetValue.Expanded
+            )
         )
     }
 }
