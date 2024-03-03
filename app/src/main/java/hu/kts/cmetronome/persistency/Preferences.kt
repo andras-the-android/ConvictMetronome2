@@ -20,7 +20,7 @@ class Preferences @Inject constructor(
         }
 
     var upDownVolumeStep: Int
-        get() = sharedPreferences.getInt(keyUpDownVolumeStep, Sounds.volumeSteps - 1)
+        get() = sharedPreferences.getInt(keyUpDownVolumeStep, Sounds.volumeSteps / 2)
         set(value) {
             sharedPreferences.edit().apply {
                 putInt(keyUpDownVolumeStep, value)
@@ -28,7 +28,7 @@ class Preferences @Inject constructor(
         }
 
     var speechVolumeStep: Int
-        get() = sharedPreferences.getInt(keySpeechVolumeStep, Sounds.volumeSteps - 1)
+        get() = sharedPreferences.getInt(keySpeechVolumeStep, Sounds.volumeSteps / 2)
         set(value) {
             sharedPreferences.edit().apply {
                 putInt(keySpeechVolumeStep, value)
