@@ -14,5 +14,6 @@ interface AppBarActionCallbacks {
 
     fun onVolumeActionClicked()
     fun dismissVolumePopup()
-    fun onVolumeChange(value: Float)
+    fun onUpDownVolumeChange(value: Float)
+    fun onSpeechVolumeChange(value: Float)
 }

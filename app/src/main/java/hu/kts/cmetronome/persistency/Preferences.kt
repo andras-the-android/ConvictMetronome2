@@ -19,11 +19,19 @@ class Preferences @Inject constructor(
             }.apply()
         }
 
-    var volumeStep: Int
-        get() = sharedPreferences.getInt(keyVolume, Sounds.volumeSteps - 1)
+    var upDownVolumeStep: Int
+        get() = sharedPreferences.getInt(keyUpDownVolumeStep, Sounds.volumeSteps - 1)
         set(value) {
             sharedPreferences.edit().apply {
-                putInt(keyVolume, value)
+                putInt(keyUpDownVolumeStep, value)
+            }.apply()
+        }
+
+    var speechVolumeStep: Int
+        get() = sharedPreferences.getInt(keySpeechVolumeStep, Sounds.volumeSteps - 1)
+        set(value) {
+            sharedPreferences.edit().apply {
+                putInt(keySpeechVolumeStep, value)
             }.apply()
         }
 
@@ -50,7 +58,8 @@ class Preferences @Inject constructor(
 
     companion object {
         private const val keySelectedExerciseId = "keySelectedExerciseId"
-        private const val keyVolume = "keyVolume"
+        private const val keyUpDownVolumeStep = "keyVolume"
+        private const val keySpeechVolumeStep = "keySpeechVolume"
         private const val keyWorkoutState = "keyWorkoutState"
     }
 

@@ -19,14 +19,22 @@ class MainViewModel @Inject constructor(
     private val preferences: Preferences,
 ): ViewModel(), AppBarActionCallbacks {
 
-    private val actionState = MutableStateFlow(AppBarActionState(volume = preferences.volumeStep.toFloat()))
+    private val actionState = MutableStateFlow(
+        AppBarActionState(
+            upDownVolume = preferences.upDownVolumeStep.toFloat(),
+            speechVolume = preferences.speechVolumeStep.toFloat(),
+        )
+    )
 
     val state = combine(
         exerciseRepository.allExercises,
         exerciseRepository.selectedExercise,
         actionState
     ) { exercises, selectedExercise, actionState ->
-        Log.d("tagmain", "${exercises.count()} exercises, ${selectedExercise.name} selected, action state: $actionState")
+        Log.d(
+            "tagmain",
+            "${exercises.count()} exercises, ${selectedExercise.name} selected, action state: $actionState"
+        )
         MainScreenState.Content(
             exercises = exercises,
             selectedExerciseId = selectedExercise.id,
@@ -34,7 +42,8 @@ class MainViewModel @Inject constructor(
             optionsMenuExpanded = actionState.optionsMenuExpanded,
             showConfirmDeleteExerciseDialog = actionState.showConfirmDeleteExerciseDialog,
             volumePopupExpanded = actionState.volumePopupExpanded,
-            volume = actionState.volume
+            upDownVolume = actionState.upDownVolume,
+            speechVolume = actionState.speechVolume
         )
     }.stateIn(
         viewModelScope,
@@ -75,9 +84,14 @@ class MainViewModel @Inject constructor(
         actionState.update { it.copy(volumePopupExpanded = false) }
     }
 
-    override fun onVolumeChange(value: Float) {
-        preferences.volumeStep = value.toInt()
-        actionState.update { it.copy(volume = value) }
+    override fun onUpDownVolumeChange(value: Float) {
+        preferences.upDownVolumeStep = value.toInt()
+        actionState.update { it.copy(upDownVolume = value) }
+    }
+
+    override fun onSpeechVolumeChange(value: Float) {
+        preferences.speechVolumeStep = value.toInt()
+        actionState.update { it.copy(speechVolume = value) }
     }
 
 }

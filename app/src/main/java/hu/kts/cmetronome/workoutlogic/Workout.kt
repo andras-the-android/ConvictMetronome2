@@ -197,7 +197,10 @@ class Workout(
                 sounds.makeDownSound()
             }
             ExercisePhase.LowerHold -> {
-                if (exercise.startWithUp) _persistentState.update { it.copy(reps = it.reps.inc()) }
+                if (exercise.startWithUp) {
+                    _persistentState.update { it.copy(reps = it.reps.inc()) }
+                    sounds.announceRepCounter(_persistentState.value.reps)
+                }
             }
 
             ExercisePhase.Up -> {
@@ -207,7 +210,10 @@ class Workout(
             }
 
             ExercisePhase.UpperHold -> {
-                if (!exercise.startWithUp) _persistentState.update { it.copy(reps = it.reps.inc()) }
+                if (!exercise.startWithUp) {
+                    _persistentState.update { it.copy(reps = it.reps.inc()) }
+                    sounds.announceRepCounter(_persistentState.value.reps)
+                }
             }
         }
     }

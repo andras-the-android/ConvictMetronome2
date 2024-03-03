@@ -2,6 +2,8 @@ package hu.kts.cmetronome.sounds
 
 import android.media.AudioTrack
 import android.media.ToneGenerator
+import android.speech.tts.TextToSpeech
+import androidx.core.os.bundleOf
 import hu.kts.cmetronome.persistency.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -16,6 +18,7 @@ class Sounds @Inject constructor(
     private val audioTrack: AudioTrack,
     private val soundArrayGenerator: SoundArrayGenerator,
     private val preferences: Preferences,
+    private val textToSpeech: TextToSpeech,
 ) {
 
     private var sampleArrayUp = ShortArray(0)
@@ -34,12 +37,19 @@ class Sounds @Inject constructor(
         playSound(false)
     }
 
+    fun announceRepCounter(reps: Int) {
+        val params = bundleOf(
+            TextToSpeech.Engine.KEY_PARAM_VOLUME to preferences.speechVolumeStep * speechVolumeStepMultiplier
+        )
+        textToSpeech.speak(reps.toString(), TextToSpeech.QUEUE_FLUSH, params, null)
+    }
+
     fun stop() {
         tryStop()
     }
 
     fun beep() {
-        if (preferences.volumeStep > 0) {
+        if (preferences.upDownVolumeStep > 0) {
             toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
             toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
             toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 150)
@@ -58,7 +68,7 @@ class Sounds @Inject constructor(
         tryStop()
         coroutineScope.launch {
             audioTrack.run {
-                setVolume(preferences.volumeStep.toRealVolume())
+                setVolume(preferences.upDownVolumeStep.toRealVolume())
                 if (playState != AudioTrack.PLAYSTATE_PLAYING) {
                     play()
                 }
@@ -89,9 +99,12 @@ class Sounds @Inject constructor(
         const val maxVolume = volumeSteps - 1f
         // every volume step is volumeStepMultiplier times louder than the previous one
         private const val volumeStepMultiplier = 1.8f
+
         // given that the max volume is 1.0, the base volume is about 0.09
         // we need to subtract 2 because the zeroth step is silence and the steps are indexed from 0
-        private val baseVolume = AudioTrack.getMaxVolume() / volumeStepMultiplier.pow(volumeSteps - 2)
+        private val baseVolume =
+            AudioTrack.getMaxVolume() / volumeStepMultiplier.pow(volumeSteps - 2)
+        private const val speechVolumeStepMultiplier = 0.1f
     }
 
 }

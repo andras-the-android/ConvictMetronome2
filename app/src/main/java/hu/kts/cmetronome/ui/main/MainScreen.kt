@@ -32,6 +32,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,7 +66,8 @@ fun MainScreen(
                     VolumePopup(
                         expanded = state.volumePopupExpanded,
                         actionCallbacks = appBarActionCallbacks,
-                        value = state.volume
+                        upDownVolume = state.upDownVolume,
+                        speechVolume = state.speechVolume,
                     )
                     OptionsMenu(
                         expanded = state.optionsMenuExpanded,
@@ -135,11 +137,12 @@ private fun OptionsMenu(
 private fun VolumePopup(
     expanded: Boolean,
     actionCallbacks: AppBarActionCallbacks,
-    value: Float
+    upDownVolume: Float,
+    speechVolume: Float,
 ) {
-    val imageVector = when (value) {
-        Sounds.maxVolume -> Icons.Outlined.VolumeUp
-        0f -> Icons.Outlined.VolumeOff
+    val imageVector = when {
+        minOf(upDownVolume, speechVolume) == Sounds.maxVolume -> Icons.Outlined.VolumeUp
+        maxOf(upDownVolume, speechVolume) == 0f -> Icons.Outlined.VolumeOff
         else -> Icons.Outlined.VolumeDown
     }
     AnimatedContent(
@@ -148,14 +151,20 @@ private fun VolumePopup(
         transitionSpec = { scaleIn() togetherWith scaleOut() },
     ) {
         IconButton(onClick = actionCallbacks::onVolumeActionClicked) {
-            Icon(it, stringResource(id = R.string.app_bar_volume), tint = MaterialTheme.colorScheme.secondary)
+            Icon(
+                it,
+                stringResource(id = R.string.app_bar_volume),
+                tint = MaterialTheme.colorScheme.secondary
+            )
         }
     }
 
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = actionCallbacks::dismissVolumePopup,
-        modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()
+        modifier = Modifier
+            .widthIn(max = 600.dp)
+            .fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
             Text(
@@ -164,9 +173,27 @@ private fun VolumePopup(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
+            Text(
+                text = stringResource(id = R.string.app_bar_volume_up_down),
+                color = MaterialTheme.colorScheme.outline,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 16.dp)
+            )
             Slider(
-                value = value,
-                onValueChange = actionCallbacks::onVolumeChange,
+                value = upDownVolume,
+                onValueChange = actionCallbacks::onUpDownVolumeChange,
+                valueRange = 0f..Sounds.volumeSteps - 1f,
+                steps = Sounds.volumeSteps - 2,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+            )
+            Text(
+                text = stringResource(id = R.string.app_bar_volume_speech),
+                color = MaterialTheme.colorScheme.outline,
+                fontWeight = FontWeight.Bold
+            )
+            Slider(
+                value = speechVolume,
+                onValueChange = actionCallbacks::onSpeechVolumeChange,
                 valueRange = 0f..Sounds.volumeSteps - 1f,
                 steps = Sounds.volumeSteps - 2,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp)
@@ -194,7 +221,8 @@ fun PreviewMainScreen() {
                 optionsMenuExpanded = false,
                 showConfirmDeleteExerciseDialog = false,
                 volumePopupExpanded = false,
-                volume = 1f
+                upDownVolume = 1f,
+                speechVolume = 1f,
             ),
             appBarActionCallbacks = object : AppBarActionCallbacks {
                 override fun onOptionsActionClicked() {}
@@ -204,7 +232,9 @@ fun PreviewMainScreen() {
                 override fun dismissConfirmDeleteExerciseDialog() {}
                 override fun onVolumeActionClicked() {}
                 override fun dismissVolumePopup() {}
-                override fun onVolumeChange(value: Float) {}            },
+                override fun onUpDownVolumeChange(value: Float) {}
+                override fun onSpeechVolumeChange(value: Float) {}
+            },
             onEditExerciseClicked = {})
         {
             WorkoutScreen(
