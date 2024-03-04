@@ -47,7 +47,7 @@ class WhatsNewDialogContent @Inject constructor(
     }
 
     companion object {
-        private const val LATEST_VERSION_WITH_WHATS_NEW_RECORD = 14
+        private const val LATEST_VERSION_WITH_WHATS_NEW_RECORD = 15
     }
 
 }
