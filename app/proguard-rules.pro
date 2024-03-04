@@ -25,3 +25,5 @@
     public static int v(...);
     public static int d(...);
 }
+
+-keep class hu.kts.cmetronome.ui.workout.WorkoutPhase
