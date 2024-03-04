@@ -86,14 +86,30 @@ fun MainScreen(
     if (state.showConfirmDeleteExerciseDialog) {
         AlertDialog(
             onDismissRequest = { appBarActionCallbacks.dismissConfirmDeleteExerciseDialog() },
-            confirmButton = { TextButton(onClick = { appBarActionCallbacks.onConfirmDeleteExercise() }) {
-                Text(stringResource(id = R.string.generic_ok))
-            } },
-            dismissButton = { TextButton(onClick = { appBarActionCallbacks.dismissConfirmDeleteExerciseDialog() }) {
-                Text(stringResource(id = R.string.generic_cancel))
-            } },
+            confirmButton = {
+                TextButton(onClick = { appBarActionCallbacks.onConfirmDeleteExercise() }) {
+                    Text(stringResource(id = R.string.generic_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { appBarActionCallbacks.dismissConfirmDeleteExerciseDialog() }) {
+                    Text(stringResource(id = R.string.generic_cancel))
+                }
+            },
             title = { Text(stringResource(id = R.string.app_bar_delete)) },
             text = { Text(stringResource(id = R.string.generic_are_you_sure)) }
+        )
+    }
+    if (!state.whatsNewDialogContent.isNullOrEmpty()) {
+        AlertDialog(
+            onDismissRequest = { appBarActionCallbacks.dismissWhatsNewDialog() },
+            confirmButton = {
+                TextButton(onClick = { appBarActionCallbacks.dismissWhatsNewDialog() }) {
+                    Text(stringResource(id = R.string.generic_ok))
+                }
+            },
+            title = { Text(stringResource(id = R.string.whats_new_dialog_title)) },
+            text = { Text(state.whatsNewDialogContent) }
         )
     }
 }
@@ -220,6 +236,7 @@ fun PreviewMainScreen() {
                 selectedExerciseId = 0,
                 optionsMenuExpanded = false,
                 showConfirmDeleteExerciseDialog = false,
+                whatsNewDialogContent = null,
                 volumePopupExpanded = false,
                 upDownVolume = 1f,
                 speechVolume = 1f,
@@ -230,6 +247,7 @@ fun PreviewMainScreen() {
                 override fun onDeleteExerciseClicked() {}
                 override fun onConfirmDeleteExercise() {}
                 override fun dismissConfirmDeleteExerciseDialog() {}
+                override fun dismissWhatsNewDialog() {}
                 override fun onVolumeActionClicked() {}
                 override fun dismissVolumePopup() {}
                 override fun onUpDownVolumeChange(value: Float) {}

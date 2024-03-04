@@ -36,4 +36,6 @@
     <string name="drawer_privacy_policy">Privacy Policy</string>
 
     <string name="text_to_speech_error">Text to speech engine failed to initialize</string>
+
+    <string name="whats_new_dialog_title">Your app has been updated!</string>
 </resources>

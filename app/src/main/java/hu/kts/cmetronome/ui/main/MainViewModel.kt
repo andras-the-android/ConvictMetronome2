@@ -17,6 +17,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val exerciseRepository: ExerciseRepository,
     private val preferences: Preferences,
+    private val whatsNewDialogContent: WhatsNewDialogContent,
 ): ViewModel(), AppBarActionCallbacks {
 
     private val actionState = MutableStateFlow(
@@ -29,8 +30,9 @@ class MainViewModel @Inject constructor(
     val state = combine(
         exerciseRepository.allExercises,
         exerciseRepository.selectedExercise,
-        actionState
-    ) { exercises, selectedExercise, actionState ->
+        actionState,
+        whatsNewDialogContent.state,
+    ) { exercises, selectedExercise, actionState, whatsNewDialogContent ->
         Log.d(
             "tagmain",
             "${exercises.count()} exercises, ${selectedExercise.name} selected, action state: $actionState"
@@ -41,6 +43,7 @@ class MainViewModel @Inject constructor(
             title = selectedExercise.name,
             optionsMenuExpanded = actionState.optionsMenuExpanded,
             showConfirmDeleteExerciseDialog = actionState.showConfirmDeleteExerciseDialog,
+            whatsNewDialogContent = whatsNewDialogContent,
             volumePopupExpanded = actionState.volumePopupExpanded,
             upDownVolume = actionState.upDownVolume,
             speechVolume = actionState.speechVolume
@@ -74,6 +77,10 @@ class MainViewModel @Inject constructor(
 
     override fun dismissConfirmDeleteExerciseDialog() {
         actionState.update { it.copy(showConfirmDeleteExerciseDialog = false) }
+    }
+
+    override fun dismissWhatsNewDialog() {
+        whatsNewDialogContent.dismissDialog()
     }
 
     override fun onVolumeActionClicked() {

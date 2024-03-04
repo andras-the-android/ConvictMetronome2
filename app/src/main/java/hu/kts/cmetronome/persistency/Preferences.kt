@@ -2,6 +2,7 @@ package hu.kts.cmetronome.persistency
 
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import hu.kts.cmetronome.BuildConfig
 import hu.kts.cmetronome.sounds.Sounds
 import hu.kts.cmetronome.workoutlogic.WorkoutPersistentState
 import javax.inject.Inject
@@ -56,11 +57,19 @@ class Preferences @Inject constructor(
         }.apply()
     }
 
+    val whatsNewSeenOnVersion: Int
+        get() = sharedPreferences.getInt(keyWhatsNewSeenOnVersion, -1)
+
+    fun updateWhatsNewSeenVersion() {
+        sharedPreferences.edit().putInt(keyWhatsNewSeenOnVersion, BuildConfig.VERSION_CODE).apply()
+    }
+
     companion object {
         private const val keySelectedExerciseId = "keySelectedExerciseId"
         private const val keyUpDownVolumeStep = "keyVolume"
         private const val keySpeechVolumeStep = "keySpeechVolume"
         private const val keyWorkoutState = "keyWorkoutState"
+        private const val keyWhatsNewSeenOnVersion = "whatsNewVersion"
     }
 
 }
